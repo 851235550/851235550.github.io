@@ -95,7 +95,7 @@
 <meta property="og:site_name" content="Minglou">
 <meta property="og:description" content="为什么要用docker由于公司需要开始接触docker(社会主义的一块砖，哪里需要哪里搬)，公司使用的是阿里的云服务器，所以刚开始看了一会的阿里云中的集群。但是看了一下午，发现看的云山雾里的。不得已只能google（google真的屌炸天）。
 资料借鉴分享个教程 Docker – 从入门到实践,我觉的可以大体上理解一下docker到底是如何运行的。github有开源的教程，由于懒所以我直接fork">
-<meta property="og:updated_time" content="2017-02-15T09:11:00.000Z">
+<meta property="og:updated_time" content="2017-02-15T09:12:15.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="docker(一)">
 <meta name="twitter:description" content="为什么要用docker由于公司需要开始接触docker(社会主义的一块砖，哪里需要哪里搬)，公司使用的是阿里的云服务器，所以刚开始看了一会的阿里云中的集群。但是看了一下午，发现看的云山雾里的。不得已只能google（google真的屌炸天）。
@@ -330,7 +330,7 @@
 <h3 id="docker-基本概念"><a href="#docker-基本概念" class="headerlink" title="docker 基本概念"></a>docker 基本概念</h3><h4 id="镜像"><a href="#镜像" class="headerlink" title="镜像"></a>镜像</h4><p>docker镜像可以理解成一种文件系统，其除了提供容器运行时所需的程序，库，资源，配置等，还提供了为运行镜像时提供的配置参数。但要明白的一点是镜像不包含任何动态数据。可以参考代码中的类来理解。</p>
 <h4 id="容器"><a href="#容器" class="headerlink" title="容器"></a>容器</h4><p>一开始我很不明白容器到底是个什么东西，看到有大神说如果把镜像比作类的话，那容器就是类的实体。<br>其实容器的本质是进程，但与直接在主机中运行的进程不同的是，容器进程运行于属于自己的命名空间。因此容器可以有自己的root文件系统、自己的进程空间，甚至自己的用户id空间。</p>
 <h4 id="仓库"><a href="#仓库" class="headerlink" title="仓库"></a>仓库</h4><p>仓库顾名思义就是存储的地方,类似于git的仓库，<a href="https://hub.docker.com/" target="_blank" rel="external">官方仓库</a>里面有很多优质镜像</p>
-<p>###实践<br>实践的前提是你要了解docker的基本命令。<br><a href="https://tommy.net.cn/2015/02/13/run-and-debug-php-website-with-docker-part-1/" target="_blank" rel="external">实践教程</a>搭建了一套nginx+mysql+php。</p>
+<h3 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h3><p>实践的前提是你要了解docker的基本命令。<br><a href="https://tommy.net.cn/2015/02/13/run-and-debug-php-website-with-docker-part-1/" target="_blank" rel="external">实践教程</a>搭建了一套nginx+mysql+php。</p>
 
       
     </div>
@@ -478,7 +478,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么要用docker"><span class="nav-number">1.</span> <span class="nav-text">为什么要用docker</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#资料借鉴"><span class="nav-number">2.</span> <span class="nav-text">资料借鉴</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#docker-基本概念"><span class="nav-number">3.</span> <span class="nav-text">docker 基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#镜像"><span class="nav-number">3.1.</span> <span class="nav-text">镜像</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#容器"><span class="nav-number">3.2.</span> <span class="nav-text">容器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#仓库"><span class="nav-number">3.3.</span> <span class="nav-text">仓库</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么要用docker"><span class="nav-number">1.</span> <span class="nav-text">为什么要用docker</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#资料借鉴"><span class="nav-number">2.</span> <span class="nav-text">资料借鉴</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#docker-基本概念"><span class="nav-number">3.</span> <span class="nav-text">docker 基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#镜像"><span class="nav-number">3.1.</span> <span class="nav-text">镜像</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#容器"><span class="nav-number">3.2.</span> <span class="nav-text">容器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#仓库"><span class="nav-number">3.3.</span> <span class="nav-text">仓库</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实践"><span class="nav-number">4.</span> <span class="nav-text">实践</span></a></li></ol></div>
             
 
           </div>
