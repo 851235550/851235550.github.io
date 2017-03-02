@@ -88,27 +88,30 @@
 
 
 <meta name="description" content="php日常
-如何以数组为单位输入到文件中?有时候会动态更新配置文件，很多配置文件的内容格式为数组。那么就需要把一个数组存入配置文件。方法很简单：使用print_r 或 var_export 就可以，该函数默认把数据打印到屏幕，但如果第二个参数为true ，则直接返回数据。$b = array (
- &apos;m&apos; =&amp;gt; &apos;monkey&apos;, 
- &apos;foo&apos; =&amp;gt; &apos;bar&apos;, 
- &apos;x&apos; =&amp;g">
+显示脚本文件的相对路径和文件名$_SERVER[&amp;quot;PHP_SELF&amp;quot;]
+
+如何以数组为单位输入到文件中?有时候会动态更新配置文件，很多配置文件的内容格式为数组。那么就需要把一个数组存入配置文件。方法很简单：使用print_r 或 var_export 就可以，该函数默认把数据打印到屏幕，但如果第二个参数为true ，则直接返回数据。
+$b = array (
+ &apos;m">
 <meta property="og:type" content="article">
 <meta property="og:title" content="php-1">
 <meta property="og:url" content="http://yoursite.com/2017/03/02/php-1/index.html">
 <meta property="og:site_name" content="明楼二三事">
 <meta property="og:description" content="php日常
-如何以数组为单位输入到文件中?有时候会动态更新配置文件，很多配置文件的内容格式为数组。那么就需要把一个数组存入配置文件。方法很简单：使用print_r 或 var_export 就可以，该函数默认把数据打印到屏幕，但如果第二个参数为true ，则直接返回数据。$b = array (
- &apos;m&apos; =&amp;gt; &apos;monkey&apos;, 
- &apos;foo&apos; =&amp;gt; &apos;bar&apos;, 
- &apos;x&apos; =&amp;g">
-<meta property="og:updated_time" content="2017-03-02T09:42:04.000Z">
+显示脚本文件的相对路径和文件名$_SERVER[&amp;quot;PHP_SELF&amp;quot;]
+
+如何以数组为单位输入到文件中?有时候会动态更新配置文件，很多配置文件的内容格式为数组。那么就需要把一个数组存入配置文件。方法很简单：使用print_r 或 var_export 就可以，该函数默认把数据打印到屏幕，但如果第二个参数为true ，则直接返回数据。
+$b = array (
+ &apos;m">
+<meta property="og:updated_time" content="2017-03-02T09:47:42.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="php-1">
 <meta name="twitter:description" content="php日常
-如何以数组为单位输入到文件中?有时候会动态更新配置文件，很多配置文件的内容格式为数组。那么就需要把一个数组存入配置文件。方法很简单：使用print_r 或 var_export 就可以，该函数默认把数据打印到屏幕，但如果第二个参数为true ，则直接返回数据。$b = array (
- &apos;m&apos; =&amp;gt; &apos;monkey&apos;, 
- &apos;foo&apos; =&amp;gt; &apos;bar&apos;, 
- &apos;x&apos; =&amp;g">
+显示脚本文件的相对路径和文件名$_SERVER[&amp;quot;PHP_SELF&amp;quot;]
+
+如何以数组为单位输入到文件中?有时候会动态更新配置文件，很多配置文件的内容格式为数组。那么就需要把一个数组存入配置文件。方法很简单：使用print_r 或 var_export 就可以，该函数默认把数据打印到屏幕，但如果第二个参数为true ，则直接返回数据。
+$b = array (
+ &apos;m">
 
 
 
@@ -355,14 +358,18 @@
 
       
         <h3 id="php日常"><a href="#php日常" class="headerlink" title="php日常"></a>php日常</h3><ul>
-<li>如何以数组为单位输入到文件中?<br>有时候会动态更新配置文件，很多配置文件的内容格式为数组。那么就需要把一个数组存入配置文件。<br>方法很简单：使用<code>print_r</code> 或 <code>var_export</code> 就可以，该函数默认把数据打印到屏幕，但如果第二个参数为<code>true</code> ，则直接返回数据。<pre><code class="php">$b = <span class="keyword">array</span> (
+<li><p>显示脚本文件的相对路径和文件名<code>$_SERVER[&quot;PHP_SELF&quot;]</code></p>
+</li>
+<li><p>如何以数组为单位输入到文件中?<br>有时候会动态更新配置文件，很多配置文件的内容格式为数组。那么就需要把一个数组存入配置文件。<br>方法很简单：使用<code>print_r</code> 或 <code>var_export</code> 就可以，该函数默认把数据打印到屏幕，但如果第二个参数为<code>true</code> ，则直接返回数据。</p>
+<pre><code class="php">$b = <span class="keyword">array</span> (
  <span class="string">'m'</span> =&gt; <span class="string">'monkey'</span>, 
  <span class="string">'foo'</span> =&gt; <span class="string">'bar'</span>, 
  <span class="string">'x'</span> =&gt; <span class="keyword">array</span> (<span class="string">'x'</span>, <span class="string">'y'</span>, <span class="string">'z'</span>)
 );
 $results = print_r($b, <span class="keyword">true</span>);
 </code></pre>
-然后你可以使用 <code>file_put_contents</code> 把 <code>$results</code> 直接写入文件<code>file_put_contents(&#39;filename.txt&#39;, print_r($b, true));</code></li>
+<p>然后你可以使用 <code>file_put_contents</code> 把 <code>$results</code> 直接写入文件<code>file_put_contents(&#39;filename.txt&#39;, print_r($b, true));</code></p>
+</li>
 </ul>
 <ul>
 <li><p>将文件中的内容读取到数组中 file()</p>
