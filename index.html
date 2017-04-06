@@ -268,6 +268,130 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/06/php-原地快速排序/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="明楼">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="明楼二三事">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="明楼二三事" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/04/06/php-原地快速排序/" itemprop="url">
+                  php-原地快速排序
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-04-06T02:28:12+08:00">
+                2017-04-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="快速排序"><a href="#快速排序" class="headerlink" title="快速排序"></a>快速排序</h4><p>首先要理解什么是快速排序:<br>在平均状况下，排序n个项目要O(n log n)次比较，在最坏情况下需要O(n2)次比较。<br>说人话,我们可以将快速排序拆解为以下几个步骤：<br>1.在给定的数列中挑一个元素，称为基数（pivot）;<br>2.对数列进行排序<br>    若元素大于基数，则将元素排在基数右面；<br>    若元素小于基数，则将元素排在基数左面;<br>    若元素等于基数，将元素放在左右皆可;<br>这个简单排序结束以后，我们会看到我们找的基数大体应该在数列的中间位置，这个称为叫做分区;<br>3.对基数两边的数列进行递归操作。</p>
+<p>其实，说的简单点就是以数列中的一个数为基准不断的对数列进行分区，等数列中元素的个数为1时即达到排序结果。<br>下面是代码实现：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&lt;?php</span></div><div class="line"><span class="comment">/**</span></div><div class="line">*   Copyright (C) pianke 2017 All rights reserved.</div><div class="line">*</div><div class="line">*   FileName      ：quick.php</div><div class="line">*   Date          ：2017/04/06 10:04:22</div><div class="line">*   Version       ：1.0</div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">swap</span><span class="params">(&amp;$arr,$ori,$target)</span></span></div><div class="line">&#123;</div><div class="line">	$tmp = $arr[$ori];</div><div class="line">	$arr[$ori] = $arr[$target];</div><div class="line">	$arr[$target] = $tmp;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">quick</span><span class="params">(&amp;$arr,$start,$end)</span></span></div><div class="line">&#123;</div><div class="line">	<span class="keyword">if</span>(!is_array($arr))&#123;</div><div class="line">		<span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	$pviot = $arr[$end];</div><div class="line">	$index = $start - <span class="number">1</span>;</div><div class="line"></div><div class="line">	<span class="keyword">for</span> ($current = $start; $current &lt; $end; $current++)</div><div class="line">	&#123;</div><div class="line">		<span class="keyword">if</span>($arr[$current] &lt;= $pviot)&#123;</div><div class="line">			<span class="comment">#index++</span></div><div class="line">			$index++;</div><div class="line">			<span class="comment">#swap(index,current)</span></div><div class="line">			swap($arr,$index,$current);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	$index = $index + <span class="number">1</span>;</div><div class="line">	swap($arr,$index,$end);</div><div class="line">	<span class="keyword">return</span> $index;</div><div class="line">	<span class="comment">//print_r($arr);</span></div><div class="line">&#125;</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">sort_test</span><span class="params">(&amp;$arr,$start,$end)</span></span></div><div class="line">&#123;</div><div class="line">	<span class="keyword">if</span>($start &lt; $end)&#123;</div><div class="line">		$index = quick($arr,$start,$end);</div><div class="line">		sort_test($arr,$start,$index<span class="number">-1</span>);</div><div class="line">		sort_test($arr,$index+<span class="number">1</span>,$end);</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//$list = [2,8,7,1,3,5,6,4];</span></div><div class="line">$list = [<span class="number">5</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">9</span>,<span class="number">1</span>,<span class="number">7</span>,<span class="number">6</span>,<span class="number">4</span>,<span class="number">8</span>];</div><div class="line">$count = count($list);</div><div class="line">sort_test($list,<span class="number">0</span>,$count<span class="number">-1</span>);</div><div class="line">print_r($list);</div></pre></td></tr></table></figure>
+<p>附一个代码的<a href="http://blog.sina.com.cn/s/blog_73428e9a01017f9x.html" target="_blank" rel="external">图解</a></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/03/30/自如房源信息抓取-python3/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -472,135 +596,6 @@
           
             <p>出门在外，找到一个合适的房子是多么的重要，so这是一个抓取58上面的房源信息的小工具，后续可能会做成一个地图的形式。<br>本案例参考他人写的python2.7改写</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div></pre></td><td class="code"><pre><div class="line"><span class="comment">#-*- coding:utf-8 -*-</span></div><div class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</div><div class="line"><span class="keyword">import</span> urllib.parse</div><div class="line"><span class="keyword">import</span> requests</div><div class="line"><span class="keyword">import</span> csv</div><div class="line"></div><div class="line">url = <span class="string">"http://bj.58.com/pinpaigongyu/pn/&#123;page&#125;/?minprice=2000_4000"</span></div><div class="line">page = <span class="number">0</span></div><div class="line">house_data=[]</div><div class="line"><span class="keyword">with</span> open(<span class="string">"rent.csv"</span>,<span class="string">"w"</span>,newline=<span class="string">''</span>) <span class="keyword">as</span> csv_file:</div><div class="line">    csv_writer = csv.writer(csv_file,delimiter=<span class="string">','</span> ,quotechar=<span class="string">'|'</span>, quoting=csv.QUOTE_MINIMAL)</div><div class="line"></div><div class="line"><span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">    page += <span class="number">1</span></div><div class="line">    print(<span class="string">"fetch:"</span>,url.format(page=page))</div><div class="line">    response = requests.get(url.format(page=page))</div><div class="line">    html = BeautifulSoup(response.text)</div><div class="line">    house_list = html.select(<span class="string">".list &gt; li"</span>)</div><div class="line"></div><div class="line">    <span class="keyword">if</span> <span class="keyword">not</span> house_list:</div><div class="line">        <span class="keyword">break</span></div><div class="line"></div><div class="line">    <span class="keyword">for</span> house <span class="keyword">in</span> house_list:</div><div class="line">        house_title = house.select(<span class="string">"h2"</span>)[<span class="number">0</span>].string.encode(<span class="string">"utf8"</span>)</div><div class="line">        house_url = urllib.parse.urljoin(url,house.select(<span class="string">"a"</span>)[<span class="number">0</span>][<span class="string">"href"</span>])</div><div class="line">        house_info_list = house_title.split()</div><div class="line"></div><div class="line">        <span class="comment">#若公寓第二列是公寓名，则将第一列作为地址</span></div><div class="line">        <span class="keyword">if</span> <span class="string">"公寓"</span> <span class="keyword">in</span> str(house_info_list[<span class="number">1</span>]) <span class="keyword">or</span> <span class="string">"青年社区"</span> <span class="keyword">in</span> str(house_info_list[<span class="number">1</span>]):</div><div class="line">            house_location = house_info_list[<span class="number">0</span>]</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            house_location = house_info_list[<span class="number">1</span>]</div><div class="line"></div><div class="line">        house_money = house.select(<span class="string">".money"</span>)[<span class="number">0</span>].select(<span class="string">"b"</span>)[<span class="number">0</span>].string.encode(<span class="string">"utf8"</span>)</div><div class="line"></div><div class="line">        <span class="comment">#print(bytes(house_title).decode('utf8'))</span></div><div class="line">        house_title = bytes(house_title).decode(<span class="string">'utf8'</span>)</div><div class="line">        house_money = bytes(house_money).decode(<span class="string">'utf8'</span>)</div><div class="line">        house_data.append([house_title,house_url,house_money])</div><div class="line"></div><div class="line"><span class="keyword">with</span> open(<span class="string">"rent.csv"</span>,<span class="string">"w"</span>) <span class="keyword">as</span> csv_file:</div><div class="line">    csv_writer = csv.writer(csv_file,delimiter=<span class="string">','</span> ,quotechar=<span class="string">'|'</span>, quoting=csv.QUOTE_MINIMAL)</div><div class="line">    csv_writer.writerows(house_data)</div><div class="line">csv_file.close()</div></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/03/25/无知是这个世界最可怕的事情/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="明楼">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="/images/avatar.png">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="明楼二三事">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="明楼二三事" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/03/25/无知是这个世界最可怕的事情/" itemprop="url">
-                  无知是这个世界最可怕的事情
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-03-25T20:27:17+08:00">
-                2017-03-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>今天翻看电影《建党伟业》发现了一个问题：电影中叙述1919年第一次世界大战结束，巴黎和会上<br>由于北洋政府之前与日本秘密签订的二十一条，被日本强占山东半岛，消息传回国内，积压已久的国耻<br>情绪爆发,随引发了学生等的游行示威。</p>
-<p>在顾维钧等代表中国政府参加巴黎和会之前，有一个镜头是顾维钧和梁启超的对话，大意是梁启超觉的<br>中国作为战胜国一方应该可以得到一部分利益，但是顾维钧表示很难并说了一句话：弱国无外交。</p>
-<p>弱国无外交，当时的政府不是不想收回山东半岛，只是由于很多政治原因，没有能力去做这件事。试想<br>一下，处在当时的中国，南方打完,北方打，北方打完，南北打,覆巢之下，焉有完卵。</p>
-<p>爆发游行的原因有很多，我觉的最大的原因并不是学生爱国。而是其中有很多人想借此机会搞点事情。<br>而学生由于属于最先接触到新思想的一个群体，所以成了最容易发动的群体。</p>
-<p>提到上面这些内容，并不是想洗地。而是觉的经过一个世纪的发展，无知的群众并没有因为时代的进步<br>而减少。反而随着人口基数的扩大，信息流通的方便等原因到处都能见到无知的现象。</p>
-<p>什么样的情况下才会进化出有独立思想的群体呢？或者人需要经历什么样的事情才会觉醒？不要人云亦<br>云，这是我们从小受到的教育。但我们同样在接受要服从组织的教育。我们甚至都不能去直面我们过去<br>的失败，言论受到极大的束缚。</p>
-<p>最近发现了自己的一个很大的问题，总是把自己摆在很高的位置，对别人尤其是觉的那些经验不足的人<br>总是一副过来人的样子去教育别人。造成这种现象的原因我觉的是因为我觉的自己比别人优秀，自己在<br>心中觉的高人一等。但是，反过来想我也知道我自己并没有什么东西可以拿来秀优越啊。转念一想就明<br>白了，和自己觉的经验不足的人比，我的确有很多地方比他们强。但是觉的自己没有东西秀优越，是拿<br>自己和更优秀的人比，这就解了这个问题。</p>
-<p>穷则独善其身，达则兼济天下。我不是这样的人，我可以做到明哲保身，却做不到兼济天下。观念的不<br>同，后天生活环境的不同才造就了今天的我们。很多时候我们与其抱怨，不如静下心来想一想该如何解<br>决目前的问题；想一想造成这种问题的原因，或许我们就会有所领悟。</p>
-<p>永远不要把自己的想法强加给别人。我们每个人兴趣不同，生活的环境不同，使我们每个人形成了不同<br>的三观。如果没有长时间的相处，就不要对别人妄加猜测。</p>
 
           
         

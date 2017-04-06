@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://yoursite.com/2017/04/06/php-%E5%8E%9F%E5%9C%B0%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F/</loc>
+    
+    <lastmod>2017-04-06T05:41:27.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://yoursite.com/2017/03/30/%E8%87%AA%E5%A6%82%E6%88%BF%E6%BA%90%E4%BF%A1%E6%81%AF%E6%8A%93%E5%8F%96-python3/</loc>
     
     <lastmod>2017-03-30T16:00:02.000Z</lastmod>
@@ -19,13 +26,6 @@
     <loc>http://yoursite.com/2017/03/30/python3-%E6%8A%93%E5%8F%9658%E6%88%BF%E6%BA%90%E4%BF%A1%E6%81%AF/</loc>
     
     <lastmod>2017-03-29T16:11:46.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://yoursite.com/2017/03/25/%E6%97%A0%E7%9F%A5%E6%98%AF%E8%BF%99%E4%B8%AA%E4%B8%96%E7%95%8C%E6%9C%80%E5%8F%AF%E6%80%95%E7%9A%84%E4%BA%8B%E6%83%85/</loc>
-    
-    <lastmod>2017-03-25T13:46:36.000Z</lastmod>
     
   </url>
   
