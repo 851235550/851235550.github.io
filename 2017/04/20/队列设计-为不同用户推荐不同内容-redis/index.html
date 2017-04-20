@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="docker," />
+  <meta name="keywords" content="php,redis,queue,队列," />
 
 
 
@@ -87,19 +87,31 @@
 
 
 
-<meta name="description" content="php + nginx由于这两天一直在阿里云上使用docker部署PHP+nginx的环境，所以对php的运行方式理解更深入了一层。
-php和nginx是如何运行的1、 应用程序调用php接口的时候访问server端的nginx配置好的主机端口，此处假设是访问服务器80端口。2、 nginx根据配置文件通知绑定在主机中9000端口的php-fpm接收到了client端的请求。3、 php-fpm根">
+<meta name="description" content="功能需求：最近app在做一个为用户自动推荐电台的功能，要求是
+
+登录用户，根据用户不同，其听到的电台不同，且用户听的越频繁的电台在用户点击下一曲时出现的概率越大。
+非登录用户，官方随机推荐。收听次数越多的电台越容易被推荐。
+
+需求分析：一开始可能会联想到创建两类池子，一类池子是官方推荐的电台的集合，另一类池子是每个用户自己的电台池子。假如，以每个电台的id作为key，以收听数作为权重值的话，要想满">
 <meta property="og:type" content="article">
-<meta property="og:title" content="docker-php+nginx">
-<meta property="og:url" content="http://851235550.github.io/2017/02/22/docker-php-nginx/index.html">
+<meta property="og:title" content="队列设计--为不同用户推荐不同内容 redis">
+<meta property="og:url" content="http://851235550.github.io/2017/04/20/队列设计-为不同用户推荐不同内容-redis/index.html">
 <meta property="og:site_name" content="yulu">
-<meta property="og:description" content="php + nginx由于这两天一直在阿里云上使用docker部署PHP+nginx的环境，所以对php的运行方式理解更深入了一层。
-php和nginx是如何运行的1、 应用程序调用php接口的时候访问server端的nginx配置好的主机端口，此处假设是访问服务器80端口。2、 nginx根据配置文件通知绑定在主机中9000端口的php-fpm接收到了client端的请求。3、 php-fpm根">
-<meta property="og:updated_time" content="2017-02-22T03:02:15.000Z">
+<meta property="og:description" content="功能需求：最近app在做一个为用户自动推荐电台的功能，要求是
+
+登录用户，根据用户不同，其听到的电台不同，且用户听的越频繁的电台在用户点击下一曲时出现的概率越大。
+非登录用户，官方随机推荐。收听次数越多的电台越容易被推荐。
+
+需求分析：一开始可能会联想到创建两类池子，一类池子是官方推荐的电台的集合，另一类池子是每个用户自己的电台池子。假如，以每个电台的id作为key，以收听数作为权重值的话，要想满">
+<meta property="og:updated_time" content="2017-04-20T15:57:26.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="docker-php+nginx">
-<meta name="twitter:description" content="php + nginx由于这两天一直在阿里云上使用docker部署PHP+nginx的环境，所以对php的运行方式理解更深入了一层。
-php和nginx是如何运行的1、 应用程序调用php接口的时候访问server端的nginx配置好的主机端口，此处假设是访问服务器80端口。2、 nginx根据配置文件通知绑定在主机中9000端口的php-fpm接收到了client端的请求。3、 php-fpm根">
+<meta name="twitter:title" content="队列设计--为不同用户推荐不同内容 redis">
+<meta name="twitter:description" content="功能需求：最近app在做一个为用户自动推荐电台的功能，要求是
+
+登录用户，根据用户不同，其听到的电台不同，且用户听的越频繁的电台在用户点击下一曲时出现的概率越大。
+非登录用户，官方随机推荐。收听次数越多的电台越容易被推荐。
+
+需求分析：一开始可能会联想到创建两类池子，一类池子是官方推荐的电台的集合，另一类池子是每个用户自己的电台池子。假如，以每个电台的id作为key，以收听数作为权重值的话，要想满">
 
 
 
@@ -127,13 +139,13 @@ php和nginx是如何运行的1、 应用程序调用php接口的时候访问serv
 
 
 
-  <link rel="canonical" href="http://851235550.github.io/2017/02/22/docker-php-nginx/"/>
+  <link rel="canonical" href="http://851235550.github.io/2017/04/20/队列设计-为不同用户推荐不同内容-redis/"/>
 
 
 
 
 
-  <title> docker-php+nginx | yulu </title>
+  <title> 队列设计--为不同用户推荐不同内容 redis | yulu </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -269,8 +281,8 @@ php和nginx是如何运行的1、 应用程序调用php接口的时候访问serv
   
   
 
-  <article class="post post-type-docker " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://851235550.github.io/2017/02/22/docker-php-nginx/">
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://851235550.github.io/2017/04/20/队列设计-为不同用户推荐不同内容-redis/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="yulu">
@@ -294,7 +306,7 @@ php和nginx是如何运行的1、 应用程序调用php接口的时候访问serv
             
             
               
-                docker-php+nginx
+                队列设计--为不同用户推荐不同内容 redis
               
             
           </h1>
@@ -309,8 +321,8 @@ php和nginx是如何运行的1、 应用程序调用php接口的时候访问serv
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-02-22T10:19:38+08:00">
-                2017-02-22
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-04-20T23:01:54+08:00">
+                2017-04-20
               </time>
             
 
@@ -345,10 +357,18 @@ php和nginx是如何运行的1、 应用程序调用php接口的时候访问serv
       
 
       
-        <h3 id="php-nginx"><a href="#php-nginx" class="headerlink" title="php + nginx"></a>php + nginx</h3><p>由于这两天一直在阿里云上使用docker部署PHP+nginx的环境，所以对php的运行方式理解更深入了一层。</p>
-<h4 id="php和nginx是如何运行的"><a href="#php和nginx是如何运行的" class="headerlink" title="php和nginx是如何运行的"></a>php和nginx是如何运行的</h4><p>1、 应用程序调用php接口的时候访问server端的nginx配置好的主机端口，此处假设是访问服务器80端口。<br>2、 nginx根据配置文件通知绑定在主机中9000端口的php-fpm接收到了client端的请求。<br>3、 php-fpm根据nginx配置中的fastcgi_param参数处理请求。<br>4、 请求处理完毕返回请求结果。</p>
-<p>以上，可以看到nginx本身不会对php进行解析，nginx在这个过程中只是反向代理，其通过反向代理将动态请求转向后段的php-fpm处理。</p>
-<h4 id="关于docker-nginx-php-配置"><a href="#关于docker-nginx-php-配置" class="headerlink" title="关于docker nginx + php 配置"></a>关于docker nginx + php 配置</h4><p>理解了nginx和php的实现原理，对于使用docker部署环境有很大的帮助。<br>在docker中，需要理解镜像、容器和仓库，这个前面一篇文章已经略微的解释了一次,在此就不再赘述。<br>一个应用(包括app，web站点)可以理解为是有n个服务组成的，比如说一个app应用至少需要server，api，db。<br>如果不使用docker，传统的做法是在一台或者几台服务器中配置好这些服务。纵使有os镜像存在，其实还是很繁琐。<br>如果使用docker，docker的做法是将每个服务分开到单独的容器中，一个容器就代表一个服务,而且docker对各个容器间的通信处理的也很好。<br>这样就大大简化了部署环境的流程。</p>
+        <h6 id="功能需求："><a href="#功能需求：" class="headerlink" title="功能需求："></a>功能需求：</h6><p>最近app在做一个为用户自动推荐电台的功能，要求是</p>
+<ol>
+<li>登录用户，根据用户不同，其听到的电台不同，且用户听的越频繁的电台在用户点击下一曲时出现的概率越大。</li>
+<li>非登录用户，官方随机推荐。收听次数越多的电台越容易被推荐。</li>
+</ol>
+<h6 id="需求分析："><a href="#需求分析：" class="headerlink" title="需求分析："></a>需求分析：</h6><p>一开始可能会联想到创建两类池子，一类池子是官方推荐的电台的集合，另一类池子是每个用户自己的电台池子。假如，以每个电台的<code>id</code>作为<code>key</code>，以收听数作为权重值的话，要想满足收听数越多越容易被推荐有点复杂。<br>所以，我们可以考虑一下实现两类队列，一类队列用来存储官方电台，一类队列用来存储用户自己常听的电台。当用户点击下一曲的时候，按照一定概率决定是从官方队列里面取电台，还是从用户自己的队列里面取电台。决定好从哪一个队列中取数据，再从这个队列中随机的取出一个数据给用户。</p>
+<ul>
+<li>如果用户完整的听完此电台，则将此电台加入用户的队列。</li>
+<li>如果用户没有听完电台点击下一曲，则将此电台从用户的队列中移除。</li>
+</ul>
+<p>这样既保证了每个用户很大概率不会听到同一个电台，有保证了再最开始让用户听到热门电台的概率比较大，同时听到自己喜欢的电台的概率也比较大</p>
+<h6 id="代码流程："><a href="#代码流程：" class="headerlink" title="代码流程："></a>代码流程：</h6><p>说了这么多还是直接看代码架构吧，细节就不展示了，我用的是<code>redis</code>的<code>list</code>来实现队列。<br><figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">getRandomNumber</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">	<span class="comment">#<span class="doctag">TODO:</span>计算随机数</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">calculateRatio</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">	<span class="comment">#<span class="doctag">TODO:</span>计算比例</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">addAdminQueue</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">	<span class="comment">#<span class="doctag">TODO:</span>为官方队列添加电台</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">updateUserQueue</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">	<span class="comment">#<span class="doctag">TODO:</span>更新用户队列</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">getFromAdminQueue</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">	<span class="comment">#<span class="doctag">TODO:</span>从官方队列取数据</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">getFromUserQueue</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">	<span class="comment">#<span class="doctag">TODO:</span>从用户队列取数据</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">showNext</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">	<span class="comment">#<span class="doctag">TODO:</span>step1 获取下一首</span></div><div class="line"></div><div class="line">	<span class="comment">#step2: 用户是否喜欢当前所听的电台，若喜欢添加到用户队列，否则从用户队列里面删除当前电台。</span></div><div class="line">	</div><div class="line">	<span class="comment">#step3:return next</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 
       
     </div>
@@ -372,7 +392,13 @@ php和nginx是如何运行的1、 应用程序调用php接口的时候访问serv
       
         <div class="post-tags">
           
-            <a href="/tags/docker/" rel="tag"># docker</a>
+            <a href="/tags/php/" rel="tag"># php</a>
+          
+            <a href="/tags/redis/" rel="tag"># redis</a>
+          
+            <a href="/tags/queue/" rel="tag"># queue</a>
+          
+            <a href="/tags/队列/" rel="tag"># 队列</a>
           
         </div>
       
@@ -385,8 +411,8 @@ php和nginx是如何运行的1、 应用程序调用php接口的时候访问serv
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/02/20/百态-2/" rel="next" title="百态(2)">
-                <i class="fa fa-chevron-left"></i> 百态(2)
+              <a href="/2017/04/18/算法-找数2/" rel="next" title="算法-找数2">
+                <i class="fa fa-chevron-left"></i> 算法-找数2
               </a>
             
           </div>
@@ -394,10 +420,6 @@ php和nginx是如何运行的1、 应用程序调用php接口的时候访问serv
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/02/27/配置php5-6-30-扩展-Dockerfile/" rel="prev" title="配置php5.6.30 扩展 Dockerfile">
-                配置php5.6.30 扩展 Dockerfile <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -513,7 +535,7 @@ php和nginx是如何运行的1、 应用程序调用php接口的时候访问serv
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#php-nginx"><span class="nav-number">1.</span> <span class="nav-text">php + nginx</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#php和nginx是如何运行的"><span class="nav-number">1.1.</span> <span class="nav-text">php和nginx是如何运行的</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#关于docker-nginx-php-配置"><span class="nav-number">1.2.</span> <span class="nav-text">关于docker nginx + php 配置</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-6"><a class="nav-link" href="#功能需求："><span class="nav-number">1.</span> <span class="nav-text">功能需求：</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#需求分析："><span class="nav-number">2.</span> <span class="nav-text">需求分析：</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#代码流程："><span class="nav-number">3.</span> <span class="nav-text">代码流程：</span></a></li></ol></div>
             
 
           </div>

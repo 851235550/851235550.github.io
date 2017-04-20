@@ -268,6 +268,138 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://851235550.github.io/2017/04/20/队列设计-为不同用户推荐不同内容-redis/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="yulu">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="yulu">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="yulu" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/04/20/队列设计-为不同用户推荐不同内容-redis/" itemprop="url">
+                  队列设计--为不同用户推荐不同内容 redis
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-04-20T23:01:54+08:00">
+                2017-04-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h6 id="功能需求："><a href="#功能需求：" class="headerlink" title="功能需求："></a>功能需求：</h6><p>最近app在做一个为用户自动推荐电台的功能，要求是</p>
+<ol>
+<li>登录用户，根据用户不同，其听到的电台不同，且用户听的越频繁的电台在用户点击下一曲时出现的概率越大。</li>
+<li>非登录用户，官方随机推荐。收听次数越多的电台越容易被推荐。</li>
+</ol>
+<h6 id="需求分析："><a href="#需求分析：" class="headerlink" title="需求分析："></a>需求分析：</h6><p>一开始可能会联想到创建两类池子，一类池子是官方推荐的电台的集合，另一类池子是每个用户自己的电台池子。假如，以每个电台的<code>id</code>作为<code>key</code>，以收听数作为权重值的话，要想满足收听数越多越容易被推荐有点复杂。<br>所以，我们可以考虑一下实现两类队列，一类队列用来存储官方电台，一类队列用来存储用户自己常听的电台。当用户点击下一曲的时候，按照一定概率决定是从官方队列里面取电台，还是从用户自己的队列里面取电台。决定好从哪一个队列中取数据，再从这个队列中随机的取出一个数据给用户。</p>
+<ul>
+<li>如果用户完整的听完此电台，则将此电台加入用户的队列。</li>
+<li>如果用户没有听完电台点击下一曲，则将此电台从用户的队列中移除。</li>
+</ul>
+<p>这样既保证了每个用户很大概率不会听到同一个电台，有保证了再最开始让用户听到热门电台的概率比较大，同时听到自己喜欢的电台的概率也比较大</p>
+<h6 id="代码流程："><a href="#代码流程：" class="headerlink" title="代码流程："></a>代码流程：</h6><p>说了这么多还是直接看代码架构吧，细节就不展示了，我用的是<code>redis</code>的<code>list</code>来实现队列。<br><figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">getRandomNumber</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">	<span class="comment">#<span class="doctag">TODO:</span>计算随机数</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">calculateRatio</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">	<span class="comment">#<span class="doctag">TODO:</span>计算比例</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">addAdminQueue</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">	<span class="comment">#<span class="doctag">TODO:</span>为官方队列添加电台</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">updateUserQueue</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">	<span class="comment">#<span class="doctag">TODO:</span>更新用户队列</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">getFromAdminQueue</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">	<span class="comment">#<span class="doctag">TODO:</span>从官方队列取数据</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">getFromUserQueue</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">	<span class="comment">#<span class="doctag">TODO:</span>从用户队列取数据</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">showNext</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">	<span class="comment">#<span class="doctag">TODO:</span>step1 获取下一首</span></div><div class="line"></div><div class="line">	<span class="comment">#step2: 用户是否喜欢当前所听的电台，若喜欢添加到用户队列，否则从用户队列里面删除当前电台。</span></div><div class="line">	</div><div class="line">	<span class="comment">#step3:return next</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="http://851235550.github.io/2017/04/18/算法-找数2/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1394,133 +1526,6 @@ $results = print_r($b, <span class="keyword">true</span>);
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://851235550.github.io/2017/02/20/百态-2/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="yulu">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="/images/avatar.png">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="yulu">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="yulu" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/20/百态-2/" itemprop="url">
-                  百态(2)
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-02-20T10:11:02+08:00">
-                2017-02-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h4 id="Article-by-Kobe-Bean-Bryant"><a href="#Article-by-Kobe-Bean-Bryant" class="headerlink" title="Article by Kobe Bean Bryant."></a>Article by Kobe Bean Bryant.</h4><p>The quote came from Kobe when he was on stage accepting the ‘Icon Award’ at the ESPYS.<br>We’re not on this stage just because of talent or ability.We’re up here because of 4 a.m. We’re up here because of two-a-days or five-a-days.We’re up here because we had a dream and let nothing stand in our way. If anything tried to bring us down, we used it to make us stronger.<br>There are thousands of athletes that had similar or even better talent than Kobe. Just like there are thousands of executives, leaders, sales managers, artists, musicians, writers, etc. that have the same and more talent than you and me. </p>
-<p>But at the end of the day, it doesn’t come down to who has the most talent or intelligence. It comes down to who is willing to make the choices that others are not willing to make.<br>Who is willing to shoot baskets in the dark when everyone else is sleeping? Who is willing to prepare more for an interview? Who is willing to practice their speech 10X more than anyone else? All are choices we make. </p>
-<p>The Dream </p>
-<p>If the dream is small, there’s no point to do things that others won’t if your end goal is not something “extra-ordinary.” There’s just no reason for the “4AMs.” Which is totally cool and fine!</p>
-<p>But if the dream is big… the game changes.<br>The 4AMs and two-a-days become intentional choices. The hard things over the easy, comfortable things become routine. The discipline to put off instant gratification is the standard process. People will say “you’re obsessed, you’re not normal!” and they’re right because its not a normal journey. A big dream is something extraordinary: very different from what is normal or customary.<br>And over time, as I’m beginning to realize more and more, the choice to take this journey is ultimately the reward. </p>
-<p>What’s your 4AM? </p>
-<p>This quote is not saying everyone should get up at 4AM or do five-a-days. It’s metaphoric. The idea is that if you have a big dream, then you have to fall in love with doing things that others won’t to accomplish what others can’t. </p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1568,7 +1573,7 @@ $results = print_r($b, <span class="keyword">true</span>);
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-count">15</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1579,7 +1584,7 @@ $results = print_r($b, <span class="keyword">true</span>);
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
