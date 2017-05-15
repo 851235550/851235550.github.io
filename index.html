@@ -1499,6 +1499,11 @@
         
           
             <h3 id="php日常"><a href="#php日常" class="headerlink" title="php日常"></a>php日常</h3><ul>
+<li><p>php 获取字符ASCII编码问题<br>  1．<code>chr()函数
+  该函数用于将ASCII码值转化为字符串。其函数声明如下：</code>string chr (int ascii);<br>  2．<code>ord()函数
+  该函数用于将字符串转化为ASCII码值。其函数声明如下：</code>int ord(string str);<br>  示例：<br>  使用chr()函数和ord()函数进行字符串与ASCII码之间的转换，程序代码如下：</p>
+  <figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&lt;?php</span></div><div class="line">	$str1=chr(<span class="number">88</span>);</div><div class="line">	<span class="keyword">echo</span> $str1;               <span class="comment">//返回值为X</span></div><div class="line">	<span class="keyword">echo</span> <span class="string">"\t"</span>;</div><div class="line">	$str2=ord(<span class="string">'S'</span>);</div><div class="line">	<span class="keyword">echo</span> $str2;               <span class="comment">//返回值为83</span></div><div class="line"><span class="meta">?&gt;</span></div></pre></td></tr></table></figure>
+</li>
 <li><p>显示脚本文件的相对路径和文件名<code>$_SERVER[&quot;PHP_SELF&quot;]</code></p>
 </li>
 <li><p>如何以数组为单位输入到文件中?<br>有时候会动态更新配置文件，很多配置文件的内容格式为数组。那么就需要把一个数组存入配置文件。<br>方法很简单：使用<code>print_r</code> 或 <code>var_export</code> 就可以，该函数默认把数据打印到屏幕，但如果第二个参数为<code>true</code> ，则直接返回数据。</p>
