@@ -87,16 +87,31 @@
 
 
 
-<meta name="description" content="快速排序首先要理解什么是快速排序:在平均状况下，排序n个项目要O(n log n)次比较，在最坏情况下需要O(n2)次比较。说人话,我们可以将快速排序拆解为以下几个步骤：1.在给定的数列中挑一个元素，称为基数（pivot）;2.对数列进行排序    若元素大于基数，则将元素排在基数右面；    若元素小于基数，则将元素排在基数左面;    若元素等于基数，将元素放在左右皆可;这个简单排序结束以后，">
+<meta name="description" content="题目：给定一个数组A，找出数组中前K个最小的数
+分析：最直观的想法应该是排序，排完序之后输出前K个数就ok了。排序可以用平均复杂度为O(n * logn)的快速排序。但题目并没有要求输出的前K个最小数有序，既然如此，就没有必要为所有元素排序。我们可以采用其他方法。 即：
+
+取A中前K个数，假设这就是数组A中最小的K个数。
+对选出的K个数取最大值max_tmp。
+遍历数组A中剩余的数，如果A[i]">
 <meta property="og:type" content="article">
-<meta property="og:title" content="php-原地快速排序">
-<meta property="og:url" content="http://851235550.github.io/2017/04/06/php-原地快速排序/index.html">
+<meta property="og:title" content="算法-寻找第K小的数">
+<meta property="og:url" content="http://851235550.github.io/2017/05/27/算法-寻找第K小的数/index.html">
 <meta property="og:site_name" content="yulu">
-<meta property="og:description" content="快速排序首先要理解什么是快速排序:在平均状况下，排序n个项目要O(n log n)次比较，在最坏情况下需要O(n2)次比较。说人话,我们可以将快速排序拆解为以下几个步骤：1.在给定的数列中挑一个元素，称为基数（pivot）;2.对数列进行排序    若元素大于基数，则将元素排在基数右面；    若元素小于基数，则将元素排在基数左面;    若元素等于基数，将元素放在左右皆可;这个简单排序结束以后，">
-<meta property="og:updated_time" content="2017-04-06T05:41:27.000Z">
+<meta property="og:description" content="题目：给定一个数组A，找出数组中前K个最小的数
+分析：最直观的想法应该是排序，排完序之后输出前K个数就ok了。排序可以用平均复杂度为O(n * logn)的快速排序。但题目并没有要求输出的前K个最小数有序，既然如此，就没有必要为所有元素排序。我们可以采用其他方法。 即：
+
+取A中前K个数，假设这就是数组A中最小的K个数。
+对选出的K个数取最大值max_tmp。
+遍历数组A中剩余的数，如果A[i]">
+<meta property="og:updated_time" content="2017-05-27T03:10:58.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="php-原地快速排序">
-<meta name="twitter:description" content="快速排序首先要理解什么是快速排序:在平均状况下，排序n个项目要O(n log n)次比较，在最坏情况下需要O(n2)次比较。说人话,我们可以将快速排序拆解为以下几个步骤：1.在给定的数列中挑一个元素，称为基数（pivot）;2.对数列进行排序    若元素大于基数，则将元素排在基数右面；    若元素小于基数，则将元素排在基数左面;    若元素等于基数，将元素放在左右皆可;这个简单排序结束以后，">
+<meta name="twitter:title" content="算法-寻找第K小的数">
+<meta name="twitter:description" content="题目：给定一个数组A，找出数组中前K个最小的数
+分析：最直观的想法应该是排序，排完序之后输出前K个数就ok了。排序可以用平均复杂度为O(n * logn)的快速排序。但题目并没有要求输出的前K个最小数有序，既然如此，就没有必要为所有元素排序。我们可以采用其他方法。 即：
+
+取A中前K个数，假设这就是数组A中最小的K个数。
+对选出的K个数取最大值max_tmp。
+遍历数组A中剩余的数，如果A[i]">
 
 
 
@@ -124,13 +139,13 @@
 
 
 
-  <link rel="canonical" href="http://851235550.github.io/2017/04/06/php-原地快速排序/"/>
+  <link rel="canonical" href="http://851235550.github.io/2017/05/27/算法-寻找第K小的数/"/>
 
 
 
 
 
-  <title> php-原地快速排序 | yulu </title>
+  <title> 算法-寻找第K小的数 | yulu </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -267,7 +282,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://851235550.github.io/2017/04/06/php-原地快速排序/">
+  <link itemprop="mainEntityOfPage" href="http://851235550.github.io/2017/05/27/算法-寻找第K小的数/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="yulu">
@@ -291,7 +306,7 @@
             
             
               
-                php-原地快速排序
+                算法-寻找第K小的数
               
             
           </h1>
@@ -306,8 +321,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-04-06T02:28:12+08:00">
-                2017-04-06
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-05-27T10:50:31+08:00">
+                2017-05-27
               </time>
             
 
@@ -342,10 +357,16 @@
       
 
       
-        <h4 id="快速排序"><a href="#快速排序" class="headerlink" title="快速排序"></a>快速排序</h4><p>首先要理解什么是快速排序:<br>在平均状况下，排序n个项目要O(n log n)次比较，在最坏情况下需要O(n2)次比较。<br>说人话,我们可以将快速排序拆解为以下几个步骤：<br>1.在给定的数列中挑一个元素，称为基数（pivot）;<br>2.对数列进行排序<br>    若元素大于基数，则将元素排在基数右面；<br>    若元素小于基数，则将元素排在基数左面;<br>    若元素等于基数，将元素放在左右皆可;<br>这个简单排序结束以后，我们会看到我们找的基数大体应该在数列的中间位置，这个称为叫做分区;<br>3.对基数两边的数列进行递归操作。</p>
-<p>其实，说的简单点就是以数列中的一个数为基准不断的对数列进行分区，等数列中元素的个数为1时即达到排序结果。<br>下面是代码实现：</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&lt;?php</span></div><div class="line"><span class="comment">/**</span></div><div class="line">*   Copyright (C) pianke 2017 All rights reserved.</div><div class="line">*</div><div class="line">*   FileName      ：quick.php</div><div class="line">*   Date          ：2017/04/06 10:04:22</div><div class="line">*   Version       ：1.0</div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">swap</span><span class="params">(&amp;$arr,$ori,$target)</span></span></div><div class="line">&#123;</div><div class="line">	$tmp = $arr[$ori];</div><div class="line">	$arr[$ori] = $arr[$target];</div><div class="line">	$arr[$target] = $tmp;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">quick</span><span class="params">(&amp;$arr,$start,$end)</span></span></div><div class="line">&#123;</div><div class="line">	<span class="keyword">if</span>(!is_array($arr))&#123;</div><div class="line">		<span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	$pviot = $arr[$end];</div><div class="line">	$index = $start - <span class="number">1</span>;</div><div class="line"></div><div class="line">	<span class="keyword">for</span> ($current = $start; $current &lt; $end; $current++)</div><div class="line">	&#123;</div><div class="line">		<span class="keyword">if</span>($arr[$current] &lt;= $pviot)&#123;</div><div class="line">			<span class="comment">#index++</span></div><div class="line">			$index++;</div><div class="line">			<span class="comment">#swap(index,current)</span></div><div class="line">			swap($arr,$index,$current);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	$index = $index + <span class="number">1</span>;</div><div class="line">	swap($arr,$index,$end);</div><div class="line">	<span class="keyword">return</span> $index;</div><div class="line">	<span class="comment">//print_r($arr);</span></div><div class="line">&#125;</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">sort_test</span><span class="params">(&amp;$arr,$start,$end)</span></span></div><div class="line">&#123;</div><div class="line">	<span class="keyword">if</span>($start &lt; $end)&#123;</div><div class="line">		$index = quick($arr,$start,$end);</div><div class="line">		sort_test($arr,$start,$index<span class="number">-1</span>);</div><div class="line">		sort_test($arr,$index+<span class="number">1</span>,$end);</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//$list = [2,8,7,1,3,5,6,4];</span></div><div class="line">$list = [<span class="number">5</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">9</span>,<span class="number">1</span>,<span class="number">7</span>,<span class="number">6</span>,<span class="number">4</span>,<span class="number">8</span>];</div><div class="line">$count = count($list);</div><div class="line">sort_test($list,<span class="number">0</span>,$count<span class="number">-1</span>);</div><div class="line">print_r($list);</div></pre></td></tr></table></figure>
-<p>附一个代码的<a href="http://blog.sina.com.cn/s/blog_73428e9a01017f9x.html" target="_blank" rel="external">图解</a></p>
+        <p>题目：给定一个数组A，找出数组中前K个最小的数</p>
+<p>分析：最直观的想法应该是排序，排完序之后输出前K个数就ok了。排序可以用平均复杂度为O(n * logn)的快速排序。但题目并没有要求输出的前K个最小数有序，既然如此，就没有必要为所有元素排序。我们可以采用其他方法。 即：</p>
+<ol>
+<li>取A中前K个数，假设这就是数组A中最小的K个数。</li>
+<li>对选出的K个数取最大值max_tmp。</li>
+<li>遍历数组A中剩余的数，如果A[i] &lt; max_tmp 则交换max_tmp,A[i]的位置，然后重复步骤2；如果A[i] &gt; max_tmp,则不做任何处理。</li>
+<li>输出数组A中前K个元素即为最小的K个数。<br>每次遍历更新或不更新数组的时间复杂度为O(K)或者O(0),所以最终时间复杂度为n * O(K);<br>代码实现如下：<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&lt;?php</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">find</span><span class="params">($arr,$k)</span></span></div><div class="line">&#123;</div><div class="line">	$len = count($arr);</div><div class="line">	<span class="keyword">if</span>($len &lt;= $k)&#123;</div><div class="line">		<span class="keyword">return</span> $arr;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	$i = findMinItem($arr,$k);</div><div class="line">	<span class="keyword">for</span>($index = $k; $index &lt; $len; $index++)&#123;</div><div class="line">		<span class="keyword">if</span>($arr[$index] &lt; $arr[$i])&#123;</div><div class="line">			$tmp = $arr[$index];</div><div class="line">			$arr[$index] = $arr[$i];</div><div class="line">			$arr[$i] = $tmp;</div><div class="line">			$i = findMinItem($arr,$k);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="keyword">return</span> $arr;</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">findMinItem</span><span class="params">($arr,$end)</span></span></div><div class="line">&#123;</div><div class="line">	$index = <span class="number">0</span>;</div><div class="line">	$minTmp = $arr[<span class="number">0</span>];</div><div class="line">	<span class="keyword">for</span>($i = <span class="number">0</span>; $i &lt; $end; $i++)&#123;</div><div class="line">		<span class="keyword">if</span>($arr[$i] &gt; $minTmp)&#123;</div><div class="line">			$index = $i;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="keyword">return</span> $index;</div><div class="line">&#125;</div><div class="line"></div><div class="line">$arr = [<span class="number">9</span>,<span class="number">8</span>,<span class="number">7</span>,<span class="number">6</span>,<span class="number">5</span>,<span class="number">4</span>,<span class="number">3</span>,<span class="number">2</span>,<span class="number">1</span>];</div><div class="line">$ret = find($arr,<span class="number">2</span>);</div><div class="line">print_r($ret);</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>除此之外还有其他方法，类似与使用堆排序来构建临时数组，由于堆中的数据是已经排好序的，每次取数组A中的元素与堆顶元素做比较，如果小于堆顶元素则替换堆顶元素，并重新构建堆；否则不更新堆。</p>
 
       
     </div>
@@ -382,8 +403,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/03/30/自如房源信息抓取-python3/" rel="next" title="自如房源信息抓取-python3">
-                <i class="fa fa-chevron-left"></i> 自如房源信息抓取-python3
+              <a href="/2017/05/22/那些炸天的博客/" rel="next" title="那些炸天的博客">
+                <i class="fa fa-chevron-left"></i> 那些炸天的博客
               </a>
             
           </div>
@@ -391,10 +412,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/04/07/算法-找数/" rel="prev" title="算法-找数">
-                算法-找数 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -441,17 +458,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <section class="site-overview sidebar-panel">
+      <section class="site-overview sidebar-panel sidebar-panel-active">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/images/avatar.png"
@@ -500,22 +508,6 @@
 
       </section>
 
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#快速排序"><span class="nav-number">1.</span> <span class="nav-text">快速排序</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
       
 
     </div>
