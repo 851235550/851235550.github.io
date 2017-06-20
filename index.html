@@ -268,6 +268,130 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://851235550.github.io/2017/06/20/算法-寻找和为定值的两个数/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="yulu">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="yulu">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="yulu" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/06/20/算法-寻找和为定值的两个数/" itemprop="url">
+                  算法-寻找和为定值的两个数
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-06-20T16:17:41+08:00">
+                2017-06-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>题目描述：<br>输入一个数组和一个数字，在数组中查找两个数，使得它们的和正好是输入的那个数字。要求时间复杂度是O(N)。如果有多对数字的和等于输入的数字，输出任意一对即可。例如输入数组1、2、4、7、11、15和数字15。由于4+11=15，因此输出4和11。</p>
+<p>分析：<br>分析在<a href="https://wizardforcel.gitbooks.io/the-art-of-programming-by-july/content/02.02.html" target="_blank" rel="external">《编程之法：面试和算法心得》</a>中寻找和为定值的两个数这一节，对于其中解法一中提到的用两个指针对两个数组分别进行扫描，若a[i] = a[j]时，即找到题目要求的数有点疑惑，在原作中没看到代码示例，所以写了一个php的简单实现。发现扫描的时候还是有点逻辑的。废话不多说，看代码吧：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">&lt;?php</div><div class="line">/**</div><div class="line">*</div><div class="line">*   FileName      ：t5.php</div><div class="line">*   Version       ：1.0</div><div class="line">*/</div><div class="line">function find($arr,$sum)&#123;</div><div class="line">	$tmp = array();</div><div class="line">	foreach($arr as $item)&#123;</div><div class="line">		$tmp[] = $sum - $item;</div><div class="line">	&#125;</div><div class="line">	$list = [];</div><div class="line">	for($i=0,$j=count($tmp)-1; $i&lt;count($arr) &amp;&amp; $j&gt;0; )&#123;</div><div class="line">		if($arr[$i] &gt; $tmp[$j])&#123;</div><div class="line">			$j--;</div><div class="line">		&#125;else if($arr[$i] &lt; $tmp[$j])&#123;</div><div class="line">			$i++;</div><div class="line">		&#125;else if($arr[$i] == $tmp[$j])&#123;</div><div class="line">			$list[] = $arr[$i];</div><div class="line">			$i++;</div><div class="line">			$j--;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	return $list;</div><div class="line">&#125;</div><div class="line"></div><div class="line">$arr = [1,2,4,7,11,15];</div><div class="line">$ret = find($arr,15);</div></pre></td></tr></table></figure></p>
+<p>以上为解法一的实现。</p>
+<p>解法二的hashtable实现用php就更简单了，php的数组本身就是一个hashtable，在此就不贴代码了。</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="http://851235550.github.io/2017/05/27/算法-寻找第K小的数/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1434,133 +1558,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://851235550.github.io/2017/03/30/自如房源信息抓取-python3/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="yulu">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="/images/avatar.png">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="yulu">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="yulu" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/03/30/自如房源信息抓取-python3/" itemprop="url">
-                  自如房源信息抓取-python3
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-03-30T23:24:46+08:00">
-                2017-03-30
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>先上代码：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding:utf-8 -*-</span></div><div class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</div><div class="line"><span class="keyword">import</span> urllib.parse</div><div class="line"><span class="keyword">import</span> requests</div><div class="line"><span class="keyword">import</span> csv</div><div class="line"><span class="keyword">import</span> re</div><div class="line"></div><div class="line">url = <span class="string">"http://www.ziroom.com/z/nl/z3-d23008618-b18335746.html?p=&#123;page&#125;"</span></div><div class="line">headers = &#123;</div><div class="line">        <span class="string">'User-Agent'</span> : <span class="string">'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:46.0) Gecko/20100101 Firefox/46.0'</span>,</div><div class="line">        <span class="string">'Content-Type'</span>: <span class="string">'application/x-www-form-urlencoded'</span>,</div><div class="line">        <span class="string">'Connection'</span> : <span class="string">'Keep-Alive'</span>,</div><div class="line">        <span class="string">'Accept'</span>:<span class="string">'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'</span></div><div class="line">&#125;</div><div class="line"><span class="comment">#算取总页数</span></div><div class="line">r = requests.get(<span class="string">"http://www.ziroom.com/z/nl/z3-d23008618-b18335746.html?p=1"</span>,headers=headers)</div><div class="line">html = BeautifulSoup(r.text,<span class="string">"html.parser"</span>)</div><div class="line">pages_str = html.select(<span class="string">".pages &gt; span"</span>)[<span class="number">0</span>].text</div><div class="line">page_count = int(re.findall(<span class="string">r'[\d]+'</span>,pages_str)[<span class="number">0</span>])</div><div class="line"></div><div class="line"><span class="comment">#开始抓取</span></div><div class="line">page = <span class="number">0</span></div><div class="line">send_url = set()</div><div class="line">house_list = []</div><div class="line">info = []</div><div class="line"><span class="keyword">while</span> page &lt; page_count:</div><div class="line">    page += <span class="number">1</span></div><div class="line">    spliced_url = url.format(page=page)</div><div class="line">    print(<span class="string">"start send:"</span>,spliced_url)</div><div class="line">    send_url.add(spliced_url)</div><div class="line">    response = requests.get(spliced_url,headers=headers)</div><div class="line">    html = BeautifulSoup(response.text,<span class="string">"html.parser"</span>)</div><div class="line">    house_list = html.select(<span class="string">"ul &gt; .clearfix"</span>)</div><div class="line"></div><div class="line">    <span class="keyword">for</span> house <span class="keyword">in</span> house_list:</div><div class="line">        house_name = house.select(<span class="string">"h3"</span>)[<span class="number">0</span>].text</div><div class="line">        house_price = house.select(<span class="string">".price"</span>)[<span class="number">0</span>].text</div><div class="line">        <span class="comment">#格式化价格字符串</span></div><div class="line">        house_price = <span class="string">""</span>.join(house_price.split())</div><div class="line">        <span class="comment">#房源详情</span></div><div class="line">        house_detail = house.select(<span class="string">".detail &gt; p"</span>)[<span class="number">1</span>].string.encode(<span class="string">"utf8"</span>)</div><div class="line">        house_detail = bytes(house_detail).decode(<span class="string">'utf8'</span>)</div><div class="line">        <span class="comment">#print(house_detail)</span></div><div class="line">        info.append([house_name,house_price,house_detail])</div><div class="line"></div><div class="line"><span class="comment">#整理信息</span></div><div class="line"><span class="comment">#print(info)</span></div><div class="line"><span class="keyword">with</span> open(<span class="string">"test.csv"</span>,<span class="string">"w"</span>) <span class="keyword">as</span> f:</div><div class="line">    f_writer = csv.writer(f,delimiter=<span class="string">','</span>,quotechar=<span class="string">'|'</span>,quoting=csv.QUOTE_MINIMAL)</div><div class="line">    f_writer.writerows(info)</div></pre></td></tr></table></figure></p>
-<p>这只是一个简单的小例子，其中主要用到的库有：requests，BeautifulSoup。感觉在抓取的时候，稍微费劲的地方是找到结束页的结束标志。我这里并没有找，而是计算了一下页数。因为自如的页面设计的很巧妙，即使只有2页，你在输入大于2的数的时候一样会请求到数据，而且和之前的数据结够区别不是很大(也可能是因为我对BeautifulSoup库不熟悉，我也是第一次用😓 )。感觉这样处理不是很好。其他的基本都有详细的官方文档,我就不赘述了，实践永远是检验真理的唯一标准。</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1603,7 +1605,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

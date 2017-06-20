@@ -90,7 +90,7 @@
 <meta name="description" content="既然总有一个人要赢，为什么不能是我呢">
 <meta property="og:type" content="website">
 <meta property="og:title" content="yulu">
-<meta property="og:url" content="http://851235550.github.io/archives/2017/03/index.html">
+<meta property="og:url" content="http://851235550.github.io/page/3/index.html">
 <meta property="og:site_name" content="yulu">
 <meta property="og:description" content="既然总有一个人要赢，为什么不能是我呢">
 <meta name="twitter:card" content="summary">
@@ -123,13 +123,13 @@
 
 
 
-  <link rel="canonical" href="http://851235550.github.io/archives/2017/03/"/>
+  <link rel="canonical" href="http://851235550.github.io/page/3/"/>
 
 
 
 
 
-  <title> 归档 | yulu </title>
+  <title> yulu </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -154,7 +154,9 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left  page-archive  ">
+  <div class="container one-collumn sidebar-position-left 
+   page-home 
+ ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -255,177 +257,140 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
+  <section id="posts" class="posts-expand">
+    
+      
 
-  <section id="posts" class="posts-collapse">
-    <span class="archive-move-on"></span>
+  
 
-    <span class="archive-page-counter">
-      
-      
-      
-        
-      
-      嗯..! 目前共计 21 篇日志。 继续努力。
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://851235550.github.io/2017/02/15/docker-一/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="yulu">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="yulu">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="yulu" src="">
     </span>
+  </span>
 
     
+      <header class="post-header">
 
-      
-      
-      
-
-      
         
-        <div class="collection-title">
-          <h2 class="archive-year motion-element" id="archive-year-2017">2017</h2>
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/02/15/docker-一/" itemprop="url">
+                  docker(一)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-02-15T15:55:06+08:00">
+                2017-02-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
         </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
       
       
 
       
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
         
-            <a class="post-title-link" href="/2017/03/30/自如房源信息抓取-python3/" itemprop="url">
-              
-                <span itemprop="name">自如房源信息抓取-python3</span>
-              
-            </a>
+          
+            <h3 id="为什么要用docker"><a href="#为什么要用docker" class="headerlink" title="为什么要用docker"></a>为什么要用docker</h3><p>由于公司需要开始接触docker(社会主义的一块砖，哪里需要哪里搬)，公司使用的是阿里的云服务器，所以刚开始看了一会的阿里云中的集群。但是看了一下午，发现看的云山雾里的。<br>不得已只能google（google真的屌炸天）。</p>
+<h3 id="资料借鉴"><a href="#资料借鉴" class="headerlink" title="资料借鉴"></a>资料借鉴</h3><p>分享个教程 <a href="https://yeasy.gitbooks.io/docker_practice/content/image/list.html" target="_blank" rel="external">Docker – 从入门到实践</a>,我觉的可以大体上理解一下docker到底是如何运行的。<br>github有开源的教程，由于懒所以我直接fork到我自己的仓库了，既然有了个像样的教程那就先看看docker大体是怎么回事儿吧！</p>
+<h3 id="docker-基本概念"><a href="#docker-基本概念" class="headerlink" title="docker 基本概念"></a>docker 基本概念</h3><h4 id="镜像"><a href="#镜像" class="headerlink" title="镜像"></a>镜像</h4><p>docker镜像可以理解成一种文件系统，其除了提供容器运行时所需的程序，库，资源，配置等，还提供了为运行镜像时提供的配置参数。但要明白的一点是镜像不包含任何动态数据。可以参考代码中的类来理解。</p>
+<h4 id="容器"><a href="#容器" class="headerlink" title="容器"></a>容器</h4><p>一开始我很不明白容器到底是个什么东西，看到有大神说如果把镜像比作类的话，那容器就是类的实体。<br>其实容器的本质是进程，但与直接在主机中运行的进程不同的是，容器进程运行于属于自己的命名空间。因此容器可以有自己的root文件系统、自己的进程空间，甚至自己的用户id空间。</p>
+<h4 id="仓库"><a href="#仓库" class="headerlink" title="仓库"></a>仓库</h4><p>仓库顾名思义就是存储的地方,类似于git的仓库，<a href="https://hub.docker.com/" target="_blank" rel="external">官方仓库</a>里面有很多优质镜像</p>
+<h3 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h3><p>实践的前提是你要了解docker的基本命令。<br><a href="https://tommy.net.cn/2015/02/13/run-and-debug-php-website-with-docker-part-1/" target="_blank" rel="external">实践教程</a>搭建了一套nginx+mysql+php。</p>
+
+          
         
-      </h1>
+      
+    </div>
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-03-30T23:24:46+08:00"
-              content="2017-03-30" >
-          03-30
-        </time>
-      </div>
+    <div>
+      
+    </div>
 
-    </header>
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
   </article>
 
 
-
     
-
-      
-      
-      
-
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2017/03/30/python3-抓取58房源信息/" itemprop="url">
-              
-                <span itemprop="name">python3 抓取58房源信息</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-03-30T00:04:31+08:00"
-              content="2017-03-30" >
-          03-30
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-      
-      
-      
-
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2017/03/13/python入门-1/" itemprop="url">
-              
-                <span itemprop="name">python入门-1</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-03-13T23:28:31+08:00"
-              content="2017-03-13" >
-          03-13
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-      
-      
-      
-
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2017/03/02/php-1/" itemprop="url">
-              
-                <span itemprop="name">PHP 积累</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-03-02T16:30:42+08:00"
-              content="2017-03-02" >
-          03-02
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
   </section>
 
   
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
+  </nav>
 
 
           
@@ -602,12 +567,6 @@
   
 
   
-  
-    <script type="text/javascript" id="motion.page.archive">
-      $('.archive-year').velocity('transition.slideLeftIn');
-    </script>
-  
-
 
   
 

@@ -268,6 +268,128 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://851235550.github.io/2017/03/30/自如房源信息抓取-python3/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="yulu">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="yulu">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="yulu" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/03/30/自如房源信息抓取-python3/" itemprop="url">
+                  自如房源信息抓取-python3
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-03-30T23:24:46+08:00">
+                2017-03-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>先上代码：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*- coding:utf-8 -*-</span></div><div class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</div><div class="line"><span class="keyword">import</span> urllib.parse</div><div class="line"><span class="keyword">import</span> requests</div><div class="line"><span class="keyword">import</span> csv</div><div class="line"><span class="keyword">import</span> re</div><div class="line"></div><div class="line">url = <span class="string">"http://www.ziroom.com/z/nl/z3-d23008618-b18335746.html?p=&#123;page&#125;"</span></div><div class="line">headers = &#123;</div><div class="line">        <span class="string">'User-Agent'</span> : <span class="string">'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:46.0) Gecko/20100101 Firefox/46.0'</span>,</div><div class="line">        <span class="string">'Content-Type'</span>: <span class="string">'application/x-www-form-urlencoded'</span>,</div><div class="line">        <span class="string">'Connection'</span> : <span class="string">'Keep-Alive'</span>,</div><div class="line">        <span class="string">'Accept'</span>:<span class="string">'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'</span></div><div class="line">&#125;</div><div class="line"><span class="comment">#算取总页数</span></div><div class="line">r = requests.get(<span class="string">"http://www.ziroom.com/z/nl/z3-d23008618-b18335746.html?p=1"</span>,headers=headers)</div><div class="line">html = BeautifulSoup(r.text,<span class="string">"html.parser"</span>)</div><div class="line">pages_str = html.select(<span class="string">".pages &gt; span"</span>)[<span class="number">0</span>].text</div><div class="line">page_count = int(re.findall(<span class="string">r'[\d]+'</span>,pages_str)[<span class="number">0</span>])</div><div class="line"></div><div class="line"><span class="comment">#开始抓取</span></div><div class="line">page = <span class="number">0</span></div><div class="line">send_url = set()</div><div class="line">house_list = []</div><div class="line">info = []</div><div class="line"><span class="keyword">while</span> page &lt; page_count:</div><div class="line">    page += <span class="number">1</span></div><div class="line">    spliced_url = url.format(page=page)</div><div class="line">    print(<span class="string">"start send:"</span>,spliced_url)</div><div class="line">    send_url.add(spliced_url)</div><div class="line">    response = requests.get(spliced_url,headers=headers)</div><div class="line">    html = BeautifulSoup(response.text,<span class="string">"html.parser"</span>)</div><div class="line">    house_list = html.select(<span class="string">"ul &gt; .clearfix"</span>)</div><div class="line"></div><div class="line">    <span class="keyword">for</span> house <span class="keyword">in</span> house_list:</div><div class="line">        house_name = house.select(<span class="string">"h3"</span>)[<span class="number">0</span>].text</div><div class="line">        house_price = house.select(<span class="string">".price"</span>)[<span class="number">0</span>].text</div><div class="line">        <span class="comment">#格式化价格字符串</span></div><div class="line">        house_price = <span class="string">""</span>.join(house_price.split())</div><div class="line">        <span class="comment">#房源详情</span></div><div class="line">        house_detail = house.select(<span class="string">".detail &gt; p"</span>)[<span class="number">1</span>].string.encode(<span class="string">"utf8"</span>)</div><div class="line">        house_detail = bytes(house_detail).decode(<span class="string">'utf8'</span>)</div><div class="line">        <span class="comment">#print(house_detail)</span></div><div class="line">        info.append([house_name,house_price,house_detail])</div><div class="line"></div><div class="line"><span class="comment">#整理信息</span></div><div class="line"><span class="comment">#print(info)</span></div><div class="line"><span class="keyword">with</span> open(<span class="string">"test.csv"</span>,<span class="string">"w"</span>) <span class="keyword">as</span> f:</div><div class="line">    f_writer = csv.writer(f,delimiter=<span class="string">','</span>,quotechar=<span class="string">'|'</span>,quoting=csv.QUOTE_MINIMAL)</div><div class="line">    f_writer.writerows(info)</div></pre></td></tr></table></figure></p>
+<p>这只是一个简单的小例子，其中主要用到的库有：requests，BeautifulSoup。感觉在抓取的时候，稍微费劲的地方是找到结束页的结束标志。我这里并没有找，而是计算了一下页数。因为自如的页面设计的很巧妙，即使只有2页，你在输入大于2的数的时候一样会请求到数据，而且和之前的数据结够区别不是很大(也可能是因为我对BeautifulSoup库不熟悉，我也是第一次用😓 )。感觉这样处理不是很好。其他的基本都有详细的官方文档,我就不赘述了，实践永远是检验真理的唯一标准。</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="http://851235550.github.io/2017/03/30/python3-抓取58房源信息/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1424,137 +1546,11 @@ $results = print_r($b, <span class="keyword">true</span>);
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://851235550.github.io/2017/02/15/docker-一/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="yulu">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="/images/avatar.png">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="yulu">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="yulu" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/15/docker-一/" itemprop="url">
-                  docker(一)
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-02-15T15:55:06+08:00">
-                2017-02-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="为什么要用docker"><a href="#为什么要用docker" class="headerlink" title="为什么要用docker"></a>为什么要用docker</h3><p>由于公司需要开始接触docker(社会主义的一块砖，哪里需要哪里搬)，公司使用的是阿里的云服务器，所以刚开始看了一会的阿里云中的集群。但是看了一下午，发现看的云山雾里的。<br>不得已只能google（google真的屌炸天）。</p>
-<h3 id="资料借鉴"><a href="#资料借鉴" class="headerlink" title="资料借鉴"></a>资料借鉴</h3><p>分享个教程 <a href="https://yeasy.gitbooks.io/docker_practice/content/image/list.html" target="_blank" rel="external">Docker – 从入门到实践</a>,我觉的可以大体上理解一下docker到底是如何运行的。<br>github有开源的教程，由于懒所以我直接fork到我自己的仓库了，既然有了个像样的教程那就先看看docker大体是怎么回事儿吧！</p>
-<h3 id="docker-基本概念"><a href="#docker-基本概念" class="headerlink" title="docker 基本概念"></a>docker 基本概念</h3><h4 id="镜像"><a href="#镜像" class="headerlink" title="镜像"></a>镜像</h4><p>docker镜像可以理解成一种文件系统，其除了提供容器运行时所需的程序，库，资源，配置等，还提供了为运行镜像时提供的配置参数。但要明白的一点是镜像不包含任何动态数据。可以参考代码中的类来理解。</p>
-<h4 id="容器"><a href="#容器" class="headerlink" title="容器"></a>容器</h4><p>一开始我很不明白容器到底是个什么东西，看到有大神说如果把镜像比作类的话，那容器就是类的实体。<br>其实容器的本质是进程，但与直接在主机中运行的进程不同的是，容器进程运行于属于自己的命名空间。因此容器可以有自己的root文件系统、自己的进程空间，甚至自己的用户id空间。</p>
-<h4 id="仓库"><a href="#仓库" class="headerlink" title="仓库"></a>仓库</h4><p>仓库顾名思义就是存储的地方,类似于git的仓库，<a href="https://hub.docker.com/" target="_blank" rel="external">官方仓库</a>里面有很多优质镜像</p>
-<h3 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h3><p>实践的前提是你要了解docker的基本命令。<br><a href="https://tommy.net.cn/2015/02/13/run-and-debug-php-website-with-docker-part-1/" target="_blank" rel="external">实践教程</a>搭建了一套nginx+mysql+php。</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1597,7 +1593,7 @@ $results = print_r($b, <span class="keyword">true</span>);
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">20</span>
+                <span class="site-state-item-count">21</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
