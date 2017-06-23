@@ -385,6 +385,33 @@
 <li>PDO 提供了一个数据访问抽象层，这意味着，不管使用哪种数据库，都可以用相同的函数（方法）来查询和获取数据。</li>
 <li>error_reporting()是用来设置应该报告何种错误的，display_errors 该选项设置是否将错误信息作为输出的一部分显示到屏幕，或者对用户隐藏而不显示。</li>
 </ul>
+<h5 id="Third"><a href="#Third" class="headerlink" title="Third"></a>Third</h5><p>第三家面试云图微动，面试应该过了。但，HR淡薪资的时候可能觉的我要的太高。</p>
+<h5 id="Fourth"><a href="#Fourth" class="headerlink" title="Fourth"></a>Fourth</h5><p>第四家面试搜狗问问,搜狗的面试题也是分笔试和面试。<br>一开始面试官会问一下简单的问题，类似于PHP7都做了哪些改变之类的，后面给了一份题做。题目第一部分是javascript的，我直接略过了😂  。第二部分是PHP，题目如下：</p>
+<p>笔试：</p>
+<ol>
+<li><p>问以下代码输出是什么，为什么？</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&lt;?php</span></div><div class="line">	setcookies(<span class="string">"name"</span>,<span class="string">"soso"</span>);</div><div class="line">	var_dump($_COOKIE[<span class="string">'name'</span>]);</div></pre></td></tr></table></figure>
+</li>
+<li><p>一个数组里面有2n+1个元素，其中n个元素重复出现2次，1个元素只出现了1次，找出这个元素的最快时间复杂度是多少。n=1….n   如果有3n+1个元素呢？</p>
+</li>
+<li>给定一个数组例如：array(‘apple’=&gt;1,’banana’=&gt;4,’pear’=&gt;1,’peach’=&gt;3) 对数组进行排序，如果值相等则按键的大小来排序。</li>
+<li>游戏A，B在10月1号-10月10号各要发放n个礼包；然后按不同的时间段发放礼包，每次发放的个数是固定的。比如A每天在7:00-9:00，没小时发放300个；Bi在周六12:00，每分钟发放50个。如何规定时间段内的礼包没有被领完，则将礼包累计到下一次发放。每个人对每款游戏只能领取一次礼包。设计数据库以及程序（伪代码）。</li>
+</ol>
+<p>面试：<br>问一些在工作中遇到的问题，以及如何解决。</p>
+<p>总结</p>
+<ol>
+<li>我当时给出的答案是sting(“soso”)，但貌似不对，应该是name undefined。因为只是设置了cookie的值，其实还没有生效吧。</li>
+<li><p>当有2n+1个元素的时候：</p>
+<ul>
+<li>我直接用了异或去处理。将数组异或一遍，最后得到的值就是要找的元素。时间复杂度是O(n);</li>
+<li>其实面试官真正想得到的答案是这样的：将1到n相加得到和tmp，将给出的数组元素相加得到和sum,然后将 tmp * 2 - sum 结果就是多出来的数。这样时间复杂度也是O(n)<br>当有3n+1个元素的时候：</li>
+<li>其方法和刚才算2n+1的时候是一致的，只不过是将tmp * 3 - sum 得到的结果再除以2即为只出现了一次的元素。</li>
+</ul>
+</li>
+<li><p>这个写一个快排就好了。</p>
+</li>
+<li>这个不细说。</li>
+</ol>
 
           
         
@@ -1649,7 +1676,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-count">13</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
