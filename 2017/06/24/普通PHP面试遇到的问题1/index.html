@@ -95,7 +95,7 @@
 <meta property="og:site_name" content="yulu">
 <meta property="og:description" content="写出常用的字符串，时间，数组函数。
 123string: substr() , mb_substr() , strstr() , chr() , ord() , implode() , explode() , join() , split() , ucfirst() , ucwords() , strtolower() , strtoupper() , str_replace() , str_s">
-<meta property="og:updated_time" content="2017-06-25T09:21:05.000Z">
+<meta property="og:updated_time" content="2017-06-28T08:16:21.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="普通PHP面试遇到的问题1">
 <meta name="twitter:description" content="写出常用的字符串，时间，数组函数。
@@ -370,6 +370,7 @@
 <li>对框架的理解，大体写一个简单的框架。</li>
 <li>socket编程。</li>
 <li>cgi与fastcgi。</li>
+<li>查看服务器日志中访问最多的前10个url<br> cat access.log | awk ‘{print $num}’ | sort | uniq -c | sort -rn | head -10</li>
 <li>nginx关于php的location配置，关于静态文件的配置。<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">location ~ \.php$ &#123;</div><div class="line">    root           html;</div><div class="line">    fastcgi_pass   <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">9000</span>;</div><div class="line">    fastcgi_index  index.php;</div><div class="line">    fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;</div><div class="line">    <span class="keyword">include</span>        fastcgi_params;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 </li>
 </ol>
@@ -483,7 +484,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-count">27</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
