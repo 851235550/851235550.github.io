@@ -1249,7 +1249,7 @@
 <li>对mysql的基础操作：创建一个user表,包含姓名，性别，uid，密码。此处需要注意的就是主键，字段的类型，长度的设置。</li>
 <li>对框架的理解，大体写一个简单的框架。</li>
 <li>socket编程。</li>
-<li>cgi与fastcgi。</li>
+<li>CGI与FastCGI。<br> CGI:CGI是一个协议，描述了服务器和请求处理程序之间传输数据的标准。CGI运行在独立的程序中即CGI程序，并为每个web请求创建一个进程,当完成任务进程就会被销毁。<br> CGI的优缺点:基于CGI的运行方式，不停的启动和销毁进程受限于操作系统的性能，难以扩展；<br> FastCGI:FastCGI是CGI的一个改进，FastCGI使用持续的进程来处理一连串的请求，这些进程是由FastCGI来管理，当请求到来时，web服务器会将环境变量和请求通过Socket或者TCP connection 传递给FastCGI进程。<br> FastCGI的优点在于预先已经启动多个进程等待web请求，更灵活的处理web请求。</li>
 <li>查看服务器日志中访问最多的前10个url<br> cat access.log | awk ‘{print $num}’ | sort | uniq -c | sort -rn | head -10</li>
 <li>nginx关于php的location配置，关于静态文件的配置。<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">location ~ \.php$ &#123;</div><div class="line">    root           html;</div><div class="line">    fastcgi_pass   <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">9000</span>;</div><div class="line">    fastcgi_index  index.php;</div><div class="line">    fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;</div><div class="line">    <span class="keyword">include</span>        fastcgi_params;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 </li>
