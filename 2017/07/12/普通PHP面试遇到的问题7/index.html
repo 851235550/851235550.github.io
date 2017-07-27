@@ -103,7 +103,7 @@ B-Tree 索引：最常见的索引类型，大部分引擎都支持B树索引。
 HASH 索引：只有Memory引擎支持，使用场景简单。
 R-Tree 索引(空间索引)：空间索引是MyISAM的一种特殊索引类型，主要用于地理空间数据类型。
 Full-text (全文索引)：全文索引也是MyISAM的一种特殊索引类型，主要用于全文索引，InnoDB从MYSQL5.6版">
-<meta property="og:updated_time" content="2017-07-15T03:03:08.000Z">
+<meta property="og:updated_time" content="2017-07-27T01:07:53.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="普通PHP面试遇到的问题7">
 <meta name="twitter:description" content="问题：mysql的索引mysql常见索引：
@@ -386,6 +386,10 @@ Full-text (全文索引)：全文索引也是MyISAM的一种特殊索引类型�
 <li>查看慢查询日志是否开启<br>show variables  like ‘%slow’;</li>
 <li>开启慢查询日志，默认关闭,mysql需要重启。<br>show variables  like ‘%slow_query_log%’;</li>
 </ul>
+<h6 id="数据库的分区"><a href="#数据库的分区" class="headerlink" title="数据库的分区"></a>数据库的分区</h6><ul>
+<li>垂直分区：将一张表中值比较大的字段拆分出来，形成新的表</li>
+<li>水平分区：复制一张相同结构的表</li>
+</ul>
 
       
     </div>
@@ -546,7 +550,7 @@ Full-text (全文索引)：全文索引也是MyISAM的一种特殊索引类型�
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#问题："><span class="nav-number">1.</span> <span class="nav-text">问题：</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#mysql的索引"><span class="nav-number">1.1.</span> <span class="nav-text">mysql的索引</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#写一个函数，算出两个文件的相对路径如-a-‘-a-b-c-d-e-php’-b-‘-a-b-12-34-c-php’-计算出-b-相对于-a-的相对路径应该是-c-d"><span class="nav-number">1.2.</span> <span class="nav-text">写一个函数，算出两个文件的相对路径如 $a = ‘/a/b/c/d/e.php’; $b = ‘/a/b/12/34/c.php’; 计算出 $b 相对于 $a 的相对路径应该是 ../../c/d</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#根据网盘设计一个数据库"><span class="nav-number">1.3.</span> <span class="nav-text">根据网盘设计一个数据库</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#PHP的多进程"><span class="nav-number">1.4.</span> <span class="nav-text">PHP的多进程</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#mysql的时间字段设置成什么类型"><span class="nav-number">1.5.</span> <span class="nav-text">mysql的时间字段设置成什么类型</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#mysql的查询语句的优化"><span class="nav-number">1.6.</span> <span class="nav-text">mysql的查询语句的优化</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#mysql的慢查询"><span class="nav-number">1.7.</span> <span class="nav-text">mysql的慢查询</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#问题："><span class="nav-number">1.</span> <span class="nav-text">问题：</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#mysql的索引"><span class="nav-number">1.1.</span> <span class="nav-text">mysql的索引</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#写一个函数，算出两个文件的相对路径如-a-‘-a-b-c-d-e-php’-b-‘-a-b-12-34-c-php’-计算出-b-相对于-a-的相对路径应该是-c-d"><span class="nav-number">1.2.</span> <span class="nav-text">写一个函数，算出两个文件的相对路径如 $a = ‘/a/b/c/d/e.php’; $b = ‘/a/b/12/34/c.php’; 计算出 $b 相对于 $a 的相对路径应该是 ../../c/d</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#根据网盘设计一个数据库"><span class="nav-number">1.3.</span> <span class="nav-text">根据网盘设计一个数据库</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#PHP的多进程"><span class="nav-number">1.4.</span> <span class="nav-text">PHP的多进程</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#mysql的时间字段设置成什么类型"><span class="nav-number">1.5.</span> <span class="nav-text">mysql的时间字段设置成什么类型</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#mysql的查询语句的优化"><span class="nav-number">1.6.</span> <span class="nav-text">mysql的查询语句的优化</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#mysql的慢查询"><span class="nav-number">1.7.</span> <span class="nav-text">mysql的慢查询</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#数据库的分区"><span class="nav-number">1.8.</span> <span class="nav-text">数据库的分区</span></a></li></ol></li></ol></div>
             
 
           </div>
