@@ -268,6 +268,614 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://851235550.github.io/2017/10/25/mysql-索引背后的数据结构及原理/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="yulu">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="yulu">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="yulu" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/10/25/mysql-索引背后的数据结构及原理/" itemprop="url">
+                  mysql 索引背后的数据结构及原理
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-10-25T21:49:33+08:00">
+                2017-10-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>注：转载自<a href="http://blog.codinglabs.org/articles/theory-of-mysql-index.html" target="_blank" rel="external">CodingLabs</a>，写的非常好。就直接贴原文了。看了这位大神的自我介绍，原来本科和我是一个学校的😂  ； 不过是老学长了，他2011年在北京航空航天大学取得计算机理论硕士学位。我2011年才去烟台大学😂  。</p>
+<p>正文：</p>
+<h5 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h5><p>本文以MySQL数据库为研究对象，讨论与数据库索引相关的一些话题。特别需要说明的是，MySQL支持诸多存储引擎，而各种存储引擎对索引的支持也各不相同，因此MySQL数据库支持多种索引类型，如BTree索引，哈希索引，全文索引等等。为了避免混乱，本文将只关注于BTree索引，因为这是平常使用MySQL时主要打交道的索引，至于哈希索引和全文索引本文暂不讨论。<br>文章主要内容分为三个部分。<br>第一部分主要从数据结构及算法理论层面讨论MySQL数据库索引的数理基础。<br>第二部分结合MySQL数据库中MyISAM和InnoDB数据存储引擎中索引的架构实现讨论聚集索引、非聚集索引及覆盖索引等话题。<br>第三部分根据上面的理论基础，讨论MySQL中高性能使用索引的策略。</p>
+<h5 id="数据结构及算法基础"><a href="#数据结构及算法基础" class="headerlink" title="数据结构及算法基础"></a>数据结构及算法基础</h5><h6 id="索引的本质"><a href="#索引的本质" class="headerlink" title="索引的本质"></a>索引的本质</h6><p>MySQL官方对索引的定义为：索引（Index）是帮助MySQL高效获取数据的数据结构。提取句子主干，就可以得到索引的本质：索引是数据结构。</p>
+<p>我们知道，数据库查询是数据库的最主要功能之一。我们都希望查询数据的速度能尽可能的快，因此数据库系统的设计者会从查询算法的角度进行优化。最基本的查询算法当然是顺序查找（linear search），这种复杂度为O(n)的算法在数据量很大时显然是糟糕的，好在计算机科学的发展提供了很多更优秀的查找算法，例如二分查找（binary search）、二叉树查找（binary tree search）等。如果稍微分析一下会发现，每种查找算法都只能应用于特定的数据结构之上，例如二分查找要求被检索数据有序，而二叉树查找只能应用于二叉查找树上，但是数据本身的组织结构不可能完全满足各种数据结构（例如，理论上不可能同时将两列都按顺序进行组织），所以，在数据之外，数据库系统还维护着满足特定查找算法的数据结构，这些数据结构以某种方式引用（指向）数据，这样就可以在这些数据结构上实现高级查找算法。这种数据结构，就是索引。<br>看一个例子：<br><img src="http://img.blog.csdn.net/20140328183811312?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZnVfems=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""><br>上图展示了一种可能的索引方式。左边是数据表，一共有两列七条记录，最左边的是数据记录的物理地址（注意逻辑上相邻的记录在磁盘上也并不是一定物理相邻的）。为了加快Col2的查找，可以维护一个右边所示的二叉查找树，每个节点分别包含索引键值和一个指向对应数据记录物理地址的指针，这样就可以运用二叉查找在O(log2n)的复杂度内获取到相应数据。虽然这是一个货真价实的索引，但是实际的数据库系统几乎没有使用二叉查找树或其进化品种红黑树（red-black tree）实现的，原因会在下文介绍。</p>
+<h6 id="B-Tree和B-Tree"><a href="#B-Tree和B-Tree" class="headerlink" title="B-Tree和B+Tree"></a>B-Tree和B+Tree</h6><p>关于B树和B+树请参考关于B树的一些总结，这篇文章介绍的比较详细，同时容易理解。<br>目前大部分数据库系统及文件系统都采用B-Tree或其变种B+Tree作为索引结构，在本文的下一节会结合存储器原理及计算机存取原理讨论为什么B-Tree和B+Tree在被如此广泛用于索引，这一节先单纯从数据结构角度描述它们。</p>
+<ol>
+<li><p>B-Tree:<br>为了描述B-Tree，首先定义一条数据记录为一个二元组[key, data]，key为记录的键值，对于不同数据记录，key是互不相同的；data为数据记录除key外的数据。那么B-Tree是满足下列条件的数据结构：</p>
+<ul>
+<li>d为大于1的一个正整数，称为B-Tree的度。</li>
+<li>h为一个正整数，称为B-Tree的高度。</li>
+<li>每个非叶子节点由n-1个key和n个指针组成，其中d&lt;=n&lt;=2d。</li>
+<li>每个叶子节点最少包含一个key和两个指针，最多包含2d-1个key和2d个指针，叶节点的指针均为null 。</li>
+<li>所有叶节点具有相同的深度，等于树高h。</li>
+<li>key和指针互相间隔，节点两端是指针。</li>
+<li>一个节点中的key从左到右非递减排列。</li>
+<li>所有节点组成树结构。</li>
+<li>每个指针要么为null，要么指向另外一个节点。</li>
+<li>如果某个指针在节点node最左边且不为null，则其指向节点的所有key小于v(key1)v(key1)，其中v(key1)v(key1)为node的第一个key的值。</li>
+<li>如果某个指针在节点node最右边且不为null，则其指向节点的所有key大于v(keym)v(keym)，其中v(keym)v(keym)为node的最后一个key的值。</li>
+<li><p>如果某个指针在节点node的左右相邻key分别是keyikeyi和keyi+1keyi+1且不为null，则其指向节点的所有key小于v(keyi+1)v(keyi+1)且大于v(keyi)v(keyi)。<br>下图是一个d = 2 的 B-Tree示意图<br><img src="http://img.blog.csdn.net/20140328183838656?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZnVfems=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">BTree_Search(node, key) &#123;</div><div class="line">    if(node == null) return null;</div><div class="line">    foreach(node.key)</div><div class="line">    &#123;</div><div class="line">        if(node.key[i] == key) return node.data[i];</div><div class="line">            if(node.key[i] &gt; key) return BTree_Search(point[i]-&gt;node);</div><div class="line">    &#125;</div><div class="line">    return BTree_Search(point[i+1]-&gt;node);</div><div class="line">&#125;</div><div class="line">data = BTree_Search(root, my_key);</div></pre></td></tr></table></figure>
+<p>关于B-Tree有一系列有趣的性质，例如一个度为d的B-Tree，设其索引N个key，则其树高h的上限为logd((N+1)/2)，检索一个key，其查找结点个数的渐进复杂度为O(logdN)。从这点可以看出，B-Tree是一个非常有效率的索引数据结构。</p>
+</li>
+</ul>
+</li>
+<li><p>B+ Tree<br>B-Tree有许多变种，其中最常见的是B+Tree，例如MySQL就普遍使用B+Tree实现其索引结构。<br>与B-Tree相比，B+Tree有以下不同点：</p>
+<ul>
+<li>每个结点的指针上限为2d而不是2d+1。</li>
+<li>内结点不存储data，只存储key；叶子结点不存储指针。<br>下图是一个简单的B+Tree示意。<br><img src="http://img.blog.csdn.net/20140328183904312?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZnVfems=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""><br>由于并不是所有节点都具有相同的域，因此B+Tree中叶结点和内结点一般大小不同。这点与B-Tree不同，虽然B-Tree中不同节点存放的key和指针可能数量不一致，但是每个结点的域和上限是一致的，所以在实现中B-Tree往往对每个结点申请同等大小的空间。<br>一般来说，B+Tree比B-Tree更适合实现外存储索引结构，具体原因与外存储器原理及计算机存取原理有关，将在下面讨论。<br>带有顺序访问指针的B+Tree：<br>一般在数据库系统或文件系统中使用的B+Tree结构都在经典B+Tree的基础上进行了优化，增加了顺序访问指针。<br><img src="http://img.blog.csdn.net/20140328183935500?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZnVfems=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""><br>如上图所示，在B+Tree的每个叶子结点增加一个指向相邻叶子结点的指针，就形成了带有顺序访问指针的B+Tree。做这个优化的目的是为了提高区间访问的性能，例如上图中如果要查询key为从18到49的所有数据记录，当找到18后，只需顺着结点和指针顺序遍历就可以一次性访问到所有数据结点，极大提到了区间查询效率。</li>
+</ul>
+</li>
+<li><p>为什么使用B-Tree（B+Tree）<br>上文说过，红黑树等数据结构也可以用来实现索引，但是文件系统及数据库系统普遍采用B-/+Tree作为索引结构，这一节将结合计算机组成原理相关知识讨论B-/+Tree作为索引的理论基础。<br>一般来说，索引本身也很大，不可能全部存储在内存中，因此索引往往以索引文件的形式存储的磁盘上。这样的话，索引查找过程中就要产生磁盘I/O消耗，相对于内存存取，I/O存取的消耗要高几个数量级，所以评价一个数据结构作为索引的优劣最重要的指标就是在查找过程中磁盘I/O操作次数的渐进复杂度。换句话说，索引的结构组织要尽量减少查找过程中磁盘I/O的存取次数。下面先介绍内存和磁盘存取原理，然后再结合这些原理分析B-/+Tree作为索引的效率。</p>
+<ul>
+<li>主存存取原理<br>目前计算机使用的主存基本都是随机读写存储器（RAM），现代RAM的结构和存取原理比较复杂，这里本文抛却具体差别，抽象出一个十分简单的存取模型来说明RAM的工作原理。<br><img src="http://img.blog.csdn.net/20140328183954734?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZnVfems=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""><br>从抽象角度看，主存是一系列的存储单元组成的矩阵，每个存储单元存储固定大小的数据。每个存储单元有唯一的地址，现代主存的编址规则比较复杂，这里将其简化成一个二维地址：通过一个行地址和一个列地址可以唯一定位到一个存储单元。上图展示了一个4 x 4的主存模型。<br>主存的存取过程如下：<br>当系统需要读取主存时，则将地址信号放到地址总线上传给主存，主存读到地址信号后，解析信号并定位到指定存储单元，然后将此存储单元数据放到数据总线上，供其它部件读取。<br>写主存的过程类似，系统将要写入单元地址和数据分别放在地址总线和数据总线上，主存读取两个总线的内容，做相应的写操作。<br>这里可以看出，主存存取的时间仅与存取次数呈线性关系，因为不存在机械操作，两次存取的数据的“距离”不会对时间有任何影响，例如，先取A0再取A1和先取A0再取D3的时间消耗是一样的。</li>
+<li>磁盘存取原理<br>上文说过，索引一般以文件形式存储在磁盘上，索引检索需要磁盘I/O操作。与主存不同，磁盘I/O存在机械运动耗费，因此磁盘I/O的时间消耗是巨大的。<br>下图是磁盘的整体结构示意图。<br><img src="http://img.blog.csdn.net/20140328184012093?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZnVfems=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""><br>一个磁盘由大小相同且同轴的圆形盘片组成，磁盘可以转动（各个磁盘必须同步转动）。在磁盘的一侧有磁头支架，磁头支架固定了一组磁头，每个磁头负责存取一个磁盘的内容。磁头不能转动，但是可以沿磁盘半径方向运动（实际是斜切向运动），每个磁头同一时刻也必须是同轴的，即从正上方向下看，所有磁头任何时候都是重叠的（不过目前已经有多磁头独立技术，可不受此限制）。下图是磁盘结构的示意图。<br><img src="http://img.blog.csdn.net/20140328184119187?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZnVfems=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""><br>盘片被划分成一系列同心环，圆心是盘片中心，每个同心环叫做一个磁道，所有半径相同的磁道组成一个柱面。磁道被沿半径线划分成一个个小的段，每个段叫做一个扇区，每个扇区是磁盘的最小存储单元。为了简单起见，我们下面假设磁盘只有一个盘片和一个磁头。<br>当需要从磁盘读取数据时，系统会将数据逻辑地址传给磁盘，磁盘的控制电路按照寻址逻辑将逻辑地址翻译成物理地址，即确定要读的数据在哪个磁道，哪个扇区。为了读取这个扇区的数据，需要将磁头放到这个扇区上方，为了实现这一点，磁头需要移动对准相应磁道，这个过程叫做寻道，所耗费时间叫做寻道时间，然后磁盘旋转将目标扇区旋转到磁头下，这个过程耗费的时间叫做旋转时间。</li>
+<li>局部性原理与磁盘预读<br>由于存储介质的特性，磁盘本身存取就比主存慢很多，再加上机械运动耗费，磁盘的存取速度往往是主存的几百分分之一，因此为了提高效率，要尽量减少磁盘I/O。为了达到这个目的，磁盘往往不是严格按需读取，而是每次都会预读，即使只需要一个字节，磁盘也会从这个位置开始，顺序向后读取一定长度的数据放入内存。这样做的理论依据是计算机科学中著名的局部性原理：<br>当一个数据被用到时，其附近的数据也通常会马上被使用。<br>程序运行期间所需要的数据通常比较集中。<br>由于磁盘顺序读取的效率很高（不需要寻道时间，只需很少的旋转时间），因此对于具有局部性的程序来说，预读可以提高I/O效率。<br>预读的长度一般为页（page）的整倍数。页是计算机管理存储器的逻辑块，硬件及操作系统往往将主存和磁盘存储区分割为连续的大小相等的块，每个存储块称为一页（在许多操作系统中，页得大小通常为4k），主存和磁盘以页为单位交换数据。当程序要读取的数据不在主存中时，会触发一个缺页异常，此时系统会向磁盘发出读盘信号，磁盘会找到数据的起始位置并向后连续读取一页或几页载入内存中，然后异常返回，程序继续运行。</li>
+</ul>
+</li>
+<li>B-/+Tree索引的性能分析<br>从使用磁盘I/O次数评价索引结构的优劣性：根据B-Tree的定义，可知检索一次最多需要访问h个结点。数据库系统的设计者巧妙的利用了磁盘预读原理，将一个结点的大小设为等于一个页面，这样每个结点只需要一次I/O就可以完全载入。为了达到这个目的，在实际实现B-Tree还需要使用如下技巧：<ul>
+<li>每次新建结点时，直接申请一个页面的空间，这样可以保证一个结点的大小等于一个页面，加之计算机存储分配都是按页对齐的，就实现了一个node只需一次I/O。</li>
+<li>B-Tree中一次检索最多需要h-1次I/O（根结点常驻内存），渐进复杂度为O(h)=O(logdN)。一般实际应用中，出读d是非常大的数字，通常超过100，因此h非常小。</li>
+<li>综上所述，用B-Tree作为索引结构效率是非常高的。<br>而红黑树结构，h明显要深得多。由于逻辑上很近的结点（父子结点）物理上可能离得很远，无法利用局部性原理。所以即使红黑树的I/O渐进复杂度也为O(h)，但是查找效率明显比B-Tree差得多。<br>B+Tree更适合外存索引，是和内结点出度d有关。从上面分析可以看到，d越大索引的性能越好，而出度的上限取决于结点内key和data的大小：dmax=floor(pagesize/(keysize+datasize+pointsize))。<br>floor表示向下取整。由于B+Tree内结点去掉了data域，因此可以拥有更大的出度，拥有更好的性能。<br>这一章从理论角度讨论了与索引相关的数据结构与算法问题，下一章将讨论B+Tree是如何具体实现为MySQL中索引，同时将结合MyISAM和InnDB存储引擎介绍非聚集索引和聚集索引两种不同的索引实现形式。</li>
+</ul>
+</li>
+</ol>
+<h5 id="MySQL索引实现"><a href="#MySQL索引实现" class="headerlink" title="MySQL索引实现"></a>MySQL索引实现</h5><p>在MySQL中，索引属于存储引擎级别的概念，不同存储引擎对索引的实现方式是不同的，本文主要讨论MyISAM和InnoDB两个存储引擎(MySQL数据库MyISAM和InnoDB存储引擎的比较)的索引实现方式。</p>
+<h6 id="MyISAM索引实现"><a href="#MyISAM索引实现" class="headerlink" title="MyISAM索引实现"></a>MyISAM索引实现</h6><p>MyISAM引擎使用B+Tree作为索引结构，叶结点的data域存放的是数据记录的地址。下面是MyISAM索引的原理图：<br><img src="http://img.blog.csdn.net/20140328184146531?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZnVfems=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""><br>这里设表一共有三列，假设我们以Col1为主键，则上图是一个MyISAM表的主索引（Primary key）示意。可以看出MyISAM的索引文件仅仅保存数据记录的地址。在MyISAM中，主索引和辅助索引（Secondary key）在结构上没有任何区别，只是主索引要求key是唯一的，而辅助索引的key可以重复。如果我们在Col2上建立一个辅助索引，则此索引的结构如下图所示：<br><img src="http://img.blog.csdn.net/20140328184211609?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZnVfems=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""><br>同样也是一颗B+Tree，data域保存数据记录的地址。因此，MyISAM中索引检索的算法为首先按照B+Tree搜索算法搜索索引，如果指定的Key存在，则取出其data域的值，然后以data域的值为地址，读取相应数据记录。<br>MyISAM的索引方式也叫做“非聚集”的，之所以这么称呼是为了与InnoDB的聚集索引区分。</p>
+<h6 id="InnoDB索引实现"><a href="#InnoDB索引实现" class="headerlink" title="InnoDB索引实现"></a>InnoDB索引实现</h6><p>虽然InnoDB也使用B+Tree作为索引结构，但具体实现方式却与MyISAM截然不同。<br>第一个重大区别是InnoDB的数据文件本身就是索引文件。从上文知道，MyISAM索引文件和数据文件是分离的，索引文件仅保存数据记录的地址。而在InnoDB中，表数据文件本身就是按B+Tree组织的一个索引结构，这棵树的叶结点data域保存了完整的数据记录。这个索引的key是数据表的主键，因此InnoDB表数据文件本身就是主索引。<br><img src="http://img.blog.csdn.net/20140328184229875?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZnVfems=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""><br>上图是InnoDB主索引（同时也是数据文件）的示意图，可以看到叶结点包含了完整的数据记录。这种索引叫做聚集索引。因为InnoDB的数据文件本身要按主键聚集，所以InnoDB要求表必须有主键（MyISAM可以没有），如果没有显式指定，则MySQL系统会自动选择一个可以唯一标识数据记录的列作为主键，如果不存在这种列，则MySQL自动为InnoDB表生成一个隐含字段作为主键，这个字段长度为6个字节，类型为长整形。<br>第二个与MyISAM索引的不同是InnoDB的辅助索引data域存储相应记录主键的值而不是地址。换句话说，InnoDB的所有辅助索引都引用主键作为data域。例如，图11为定义在Col3上的一个辅助索引：<br><img src="http://img.blog.csdn.net/20140328184248265?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZnVfems=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""><br>这里以英文字符的ASCII码作为比较准则。聚集索引这种实现方式使得按主键的搜索十分高效，但是辅助索引搜索需要检索两遍索引：首先检索辅助索引获得主键，然后用主键到主索引中检索获得记录。<br>了解不同存储引擎的索引实现方式对于正确使用和优化索引都非常有帮助，例如知道了InnoDB的索引实现后，就很容易明白为什么不建议使用过长的字段作为主键，因为所有辅助索引都引用主索引，过长的主索引会令辅助索引变得过大。再例如，用非单调的字段作为主键在InnoDB中不是个好主意，因为InnoDB数据文件本身是一颗B+Tree，非单调的主键会造成在插入新记录时数据文件为了维持B+Tree的特性而频繁的分裂调整，十分低效，而使用自增字段作为主键则是一个很好的选择。</p>
+<p>下一章将具体讨论这些与索引有关的优化策略。</p>
+<h5 id="索引使用策略及优化"><a href="#索引使用策略及优化" class="headerlink" title="索引使用策略及优化"></a>索引使用策略及优化</h5><p>MySQL的优化主要分为结构优化（Scheme optimization）和查询优化（Query optimization）。本章讨论的高性能索引策略主要属于结构优化范畴。本章的内容完全基于上文的理论基础，实际上一旦理解了索引背后的机制，那么选择高性能的策略就变成了纯粹的推理，并且可以理解这些策略背后的逻辑。</p>
+<h6 id="示例数据库"><a href="#示例数据库" class="headerlink" title="示例数据库"></a>示例数据库</h6><p>为了讨论索引策略，需要一个数据量不算小的数据库作为示例。本文选用MySQL官方文档中提供的示例数据库之一：employees。这个数据库关系复杂度适中，且数据量较大。下图是这个数据库的E-R关系图（引用自MySQL官方手册）<br><img src="http://img.blog.csdn.net/20140328184314937?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZnVfems=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""></p>
+<ol>
+<li>最左前缀原理与相关优化<br>高效使用索引的首要条件是知道什么样的查询会使用到索引，这个问题和B+Tree中的“最左前缀原理”有关，下面通过例子说明最左前缀原理。<br>这里先说一下联合索引的概念。在上文中，我们都是假设索引只引用了单个的列，实际上，MySQL中的索引可以以一定顺序引用多个列，这种索引叫做联合索引，一般的，一个联合索引是一个有序元组 <code>&lt;a1, a2, …, an&gt;</code>，其中各个元素均为数据表的一列，实际上要严格定义索引需要用到关系代数，但是这里我不想讨论太多关系代数的话题，因为那样会显得很枯燥，所以这里就不再做严格定义。另外，单列索引可以看成联合索引元素数为1的特例</li>
+<li>InnoDB的主键选择与优化<br>在使用InnoDB存储引擎时，如果没有特别的需要，请永远使用一个与业务无关的自增字段作为主键。<br>经常看到有帖子或博客讨论主键选择问题，有人建议使用业务无关的自增主键，有人觉得没有必要，完全可以使用如学号或身份证号这种唯一字段作为主键。不论支持哪种论点，大多数论据都是业务层面的。如果从数据库索引优化角度看，使用InnoDB引擎而不使用自增主键绝对是一个糟糕的主意。<br>上文讨论过InnoDB的索引实现，InnoDB使用聚集索引，数据记录本身被存于主索引（一颗B+Tree）的叶子节点上。这就要求同一个叶子节点内（大小为一个内存页或磁盘页）的各条数据记录按主键顺序存放，因此每当有一条新的记录插入时，MySQL会根据其主键将其插入适当的节点和位置，如果页面达到装载因子（InnoDB默认为15/16），则开辟一个新的页（节点）。<br>如果表使用自增主键，那么每次插入新的记录，记录就会顺序添加到当前索引节点的后续位置，当一页写满，就会自动开辟一个新的页。如下图所示：<br><img src="http://img.blog.csdn.net/20140328184342625?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZnVfems=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""><br>这样就会形成一个紧凑的索引结构，近似顺序填满。由于每次插入时也不需要移动已有数据，因此效率很高，也不会增加很多开销在维护索引上。<br>如果使用非自增主键（如果身份证号或学号等），由于每次插入主键的值近似于随机，因此每次新纪录都要被插到现有索引页得中间某个位置：<br><img src="http://img.blog.csdn.net/20140328184356281?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZnVfems=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""><br>此时MySQL不得不为了将新记录插到合适位置而移动数据，甚至目标页面可能已经被回写到磁盘上而从缓存中清掉，此时又要从磁盘上读回来，这增加了很多开销，同时频繁的移动、分页操作造成了大量的碎片，得到了不够紧凑的索引结构，后续不得不通过OPTIMIZE TABLE来重建表并优化填充页面。<br>因此，只要可以，请尽量在InnoDB上采用自增字段做主键。</li>
+</ol>
+<p>转自<a href="http://blog.codinglabs.org/articles/theory-of-mysql-index.html" target="_blank" rel="external">MySQL索引背后的数据结构及算法原理</a></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://851235550.github.io/2017/10/25/redis-与-memcache/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="yulu">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="yulu">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="yulu" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/10/25/redis-与-memcache/" itemprop="url">
+                  redis 与 memcache
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-10-25T20:21:16+08:00">
+                2017-10-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h5 id="Redis"><a href="#Redis" class="headerlink" title="Redis"></a>Redis</h5><h6 id="Redis-数据结构介绍"><a href="#Redis-数据结构介绍" class="headerlink" title="Redis 数据结构介绍"></a>Redis 数据结构介绍</h6><p>redis 是一种nosql，常用的五种数据结构：string，list，set，sort set，hash。什么是nosql？nosql即no only sql，泛指非关系型数据库。下图展示了redis内部内存管理中如何描述这些不同的数据结构的：<img src="http://img.blog.csdn.net/20150929103727326?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""> </p>
+<p>Redis内部使用一个redisObject对象来表示所有的key和value。redisObject最主要的信息上图所示，type代表一个value对象具体是何种数据类型，encoding是不同数据类型在redis内部的存储方式，比如：type=string代表value存储的是一个普通字符串，那么对应的encoding可以是raw或者是int，如果是int则代表实际redis内部是按数值型类存储和表示这个字符串的，当然前提是这个字符串本身可以用数值表示，比如:”123” “456”这样的字符串。这里需要特殊说明一下vm字段，只有打开了Redis的虚拟内存功能，此字段才会真正的分配内存，该功能默认是关闭状态的。我们可以发现Redis使用redisObject来表示所有的key/value数据是比较浪费内存的，当然这些内存管理成本的付出主要也是为了给Redis不同数据类型提供一个统一的管理接口，实际作者也提供了多种方法帮助我们尽量节省内存使用。下面我们先来逐一的分析下这五种数据类型的使用和内部实现方式。</p>
+<ol>
+<li>String<br>常用命令：set/get/decr/incr/mget等；<br>应用场景：String是最常用的一种数据类型，普通的key/value存储都可以归为此类；<br>实现方式：String在redis内部存储默认就是一个字符串，被redisObject所引用，当遇到incr、decr等操作时会转成数值型进行计算，此时redisObject的encoding字段为int。</li>
+<li>Hash<br>常用命令：hget/hset/hgetall等<br>应用场景：我们要存储一个用户信息对象数据，其中包括用户ID、用户姓名、年龄和生日，通过用户ID我们希望获取该用户的姓名或者年龄或者生日；<br>实现方式：Redis的Hash实际是内部存储的Value为一个HashMap，并提供了直接存取这个Map成员的接口。如下图所示，Key是用户ID, value是一个Map。这个Map的key是成员的属性名，value是属性值。这样对数据的修改和存取都可以直接通过其内部Map的Key(Redis里称内部Map的key为field), 也就是通过 key(用户ID) + field(属性标签) 就可以操作对应属性数据。当前HashMap的实现有两种方式：当HashMap的成员比较少时Redis为了节省内存会采用类似一维数组的方式来紧凑存储，而不会采用真正的HashMap结构，这时对应的value的redisObject的encoding为zipmap，当成员数量增大时会自动转成真正的HashMap,此时encoding为ht。<br><img src="http://img.blog.csdn.net/20150929103749499?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""> </li>
+<li>List<br>常用命令：lpush/rpush/lpop/rpop/lrange等；<br>应用场景：Redis list的应用场景非常多，也是Redis最重要的数据结构之一，比如twitter的关注列表，粉丝列表等都可以用Redis的list结构来实现；<br>实现方式：Redis list的实现为一个双向链表，即可以支持反向查找和遍历，更方便操作，不过带来了部分额外的内存开销，Redis内部的很多实现，包括发送缓冲队列等也都是用的这个数据结构。</li>
+<li>Set<br>常用命令：sadd/spop/smembers/sunion等；<br>应用场景：Redis set对外提供的功能与list类似是一个列表的功能，特殊之处在于set是可以自动排重的，当你需要存储一个列表数据，又不希望出现重复数据时，set是一个很好的选择，并且set提供了判断某个成员是否在一个set集合内的重要接口，这个也是list所不能提供的；<br>实现方式：set 的内部实现是一个 value永远为null的HashMap，实际就是通过计算hash的方式来快速排重的，这也是set能提供判断一个成员是否在集合内的原因。</li>
+<li>Sorted Set<br>常用命令：zadd/zrange/zrem/zcard等；<br>应用场景：Redis sorted set的使用场景与set类似，区别是set不是自动有序的，而sorted set可以通过用户额外提供一个优先级(score)的参数来为成员排序，并且是插入有序的，即自动排序。当你需要一个有序的并且不重复的集合列表，那么可以选择sorted set数据结构，比如twitter 的public timeline可以以发表时间作为score来存储，这样获取时就是自动按时间排好序的。<br>实现方式：Redis sorted set的内部使用HashMap和跳跃表(SkipList)来保证数据的存储和有序，HashMap里放的是成员到score的映射，而跳跃表里存放的是所有的成员，排序依据是HashMap里存的score,使用跳跃表的结构可以获得比较高的查找效率，并且在实现上比较简单。</li>
+</ol>
+<h6 id="Redis-如何实现持久化"><a href="#Redis-如何实现持久化" class="headerlink" title="Redis 如何实现持久化"></a>Redis 如何实现持久化</h6><p>Redis虽然是基于内存的存储系统，但是它本身是支持内存数据的持久化的，而且提供两种主要的持久化策略：RDB快照和AOF日志。</p>
+<ol>
+<li>RDB快照：<br>Redis支持将当前数据的快照存成一个数据文件的持久化机制，即RDB快照。这种方法是非常好理解的，但是一个持续写入的数据库如何生成快照呢？Redis借助了fork命令的copy on write机制。在生成快照时，将当前进程fork出一个子进程，然后在子进程中循环所有的数据，将数据写成为RDB文件。<br>我们可以通过Redis的save指令来配置RDB快照生成的时机，比如你可以配置当10分钟以内有100次写入就生成快照，也可以配置当1小时内有1000次写入就生成快照，也可以多个规则一起实施。这些规则的定义就在Redis的配置文件中，你也可以通过Redis的CONFIG SET命令在Redis运行时设置规则，不需要重启Redis。<br>Redis的RDB文件不会坏掉，因为其写操作是在一个新进程中进行的，当生成一个新的RDB文件时，Redis生成的子进程会先将数据写到一个临时文件中，然后通过原子性rename系统调用将临时文件重命名为RDB文件，这样在任何时候出现故障，Redis的RDB文件都总是可用的。同时，Redis的RDB文件也是Redis主从同步内部实现中的一环。<br>但是，我们可以很明显的看到，RDB有他的不足，就是一旦数据库出现问题，那么我们的RDB文件中保存的数据并不是全新的，从上次RDB文件生成到Redis停机这段时间的数据全部丢掉了。在某些业务下，这是可以忍受的，我们也推荐这些业务使用RDB的方式进行持久化，因为开启RDB的代价并不高。但是对于另外一些对数据安全性要求极高的应用，无法容忍数据丢失的应用，RDB就无能为力了，所以Redis引入了另一个重要的持久化机制：AOF日志。</li>
+<li>AOF 日志：<br>AOF日志的全称是append only file，从名字上我们就能看出来，它是一个追加写入的日志文件。与一般数据库的binlog不同的是，AOF文件是可识别的纯文本，它的内容就是一个个的Redis标准命令。当然，并不是发送给Redis的所有命令都要记录到AOF日志里面，只有那些会导致数据发生修改的命令才会追加到AOF文件。那么每一条修改数据的命令都生成一条日志，那么AOF文件是不是会很大？答案是肯定的，AOF文件会越来越大，所以Redis又提供了一个功能，叫做AOF rewrite。其功能就是重新生成一份AOF文件，新的AOF文件中一条记录的操作只会有一次，而不像一份老文件那样，可能记录了对同一个值的多次操作。其生成过程和RDB类似，也是fork一个进程，直接遍历数据，写入新的AOF临时文件。在写入新文件的过程中，所有的写操作日志还是会写到原来老的AOF文件中，同时还会记录在内存缓冲区中。当重写操作完成后，会将所有缓冲区中的日志一次性写入到临时文件中。然后调用原子性的rename命令用新的AOF文件取代老的AOF文件。<br>AOF是一个写文件操作，其目的是将操作日志写到磁盘上，所以它也同样会遇到我们上面说的写操作的5个流程。那么写AOF的操作安全性又有多高呢。实际上这是可以设置的，在Redis中对AOF调用write写入后，何时再调用fsync将其写到磁盘上，通过appendfsync选项来控制，下面appendfsync的三个设置项，安全强度逐渐变强。<ul>
+<li>appendfsync no<br>当设置appendfsync为no的时候，Redis不会主动调用fsync去将AOF日志内容同步到磁盘，所以这一切就完全依赖于操作系统的调试了。对大多数Linux操作系统，是每30秒进行一次fsync，将缓冲区中的数据写到磁盘上。</li>
+<li>appendfsync everysec<br>当设置appendfsync为everysec的时候，Redis会默认每隔一秒进行一次fsync调用，将缓冲区中的数据写到磁盘。但是当这一次的fsync调用时长超过1秒时。Redis会采取延迟fsync的策略，再等一秒钟。也就是在两秒后再进行fsync，这一次的fsync就不管会执行多长时间都会进行。这时候由于在fsync时文件描述符会被阻塞，所以当前的写操作就会阻塞。所以结论就是，在绝大多数情况下，Redis会每隔一秒进行一次fsync。在最坏的情况下，两秒钟会进行一次fsync操作。这一操作在大多数数据库系统中被称为group commit，就是组合多次写操作的数据，一次性将日志写到磁盘。</li>
+<li>appednfsync always<br>当设置appendfsync为always时，每一次写操作都会调用一次fsync，这时数据是最安全的，当然，由于每次都会执行fsync，所以其性能也会受到影响。</li>
+</ul>
+</li>
+</ol>
+<h5 id="Memcache"><a href="#Memcache" class="headerlink" title="Memcache"></a>Memcache</h5><p>Memcache是一个存储键值对的HashMap。其只有key-value这一种数据结构。</p>
+<h5 id="Redis-与-Memcache-比较"><a href="#Redis-与-Memcache-比较" class="headerlink" title="Redis 与 Memcache 比较"></a>Redis 与 Memcache 比较</h5><ol>
+<li>网络IO模型<br>Memcached是多线程，非阻塞IO复用的网络模型，分为监听主线程和worker子线程，监听线程监听网络连接，接受请求后，将连接描述字pipe传递给worker线程，进行读写IO, 网络层使用libevent封装的事件库，多线程模型可以发挥多核作用，但是引入了cache coherency(缓存一致性)和锁的问题，比如，Memcached最常用的stats 命令，实际Memcached所有操作都要对这个全局变量加锁，进行计数等工作，带来了性能损耗。<br>Redis使用单线程的IO复用模型，自己封装了一个简单的AeEvent事件处理框架，主要实现了epoll、kqueue和select，对于单纯只有IO操作来说，单线程可以将速度优势发挥到最大，但是Redis也提供了一些简单的计算功能，比如排序、聚合等，对于这些操作，单线程模型实际会严重影响整体吞吐量，CPU计算过程中，整个IO调度都是被阻塞住的。</li>
+<li>内存管理方面<br>Memcached默认使用Slab Allocation机制管理内存，其主要思想是按照预先规定的大小。使用slab和大小不同的chunk来管理内存，Item根据大小选择合适的chunk存储，内存池的方式可以省去申请/释放内存的开销，并且能减小内存碎片产生，但这种方式也会带来一定程度上的空间浪费，并且在内存仍然有很大空间时，新的数据也可能会被剔除，原因可以参考Timyang的文章：<a href="http://timyang.net/data/Memcached-lru-evictions/" target="_blank" rel="external">http://timyang.net/data/Memcached-lru-evictions/</a><br>Slab Allocation的原理相当简单。 如下图所示，它首先从操作系统申请一大块内存，并将其分割成各种尺寸的块Chunk，并把尺寸相同的块分成组Slab Class。其中，Chunk就是用来存储key-value数据的最小单位。每个Slab Class的大小，可以在Memcached启动的时候通过制定Growth Factor来控制。假定Figure 1中Growth Factor的取值为1.25，所以如果第一组Chunk的大小为88个字节，第二组Chunk的大小就为112个字节，依此类推。<br><img src="http://img.blog.csdn.net/20150929103833802?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""><br>当Memcached接收到客户端发送过来的数据时首先会根据收到数据的大小选择一个最合适的Slab Class，然后通过查询Memcached保存着的该Slab Class内空闲Chunk的列表就可以找到一个可用于存储数据的Chunk。当一条数据库过期或者丢弃时，该记录所占用的Chunk就可以回收，重新添加到空闲列表中。从以上过程我们可以看出Memcached的内存管理制效率高，而且不会造成内存碎片，但是它最大的缺点就是会导致空间浪费。因为每个Chunk都分配了特定长度的内存空间，所以变长数据无法充分利用这些空间。如下图所示，将100个字节的数据缓存到128个字节的Chunk中，剩余的28个字节就浪费掉了。<br><img src="http://img.blog.csdn.net/20150929103909462?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""><br>Redis使用现场申请内存的方式来存储数据，内存管理主要通过源码中zmalloc.h和zmalloc.c两个文件来实现的。Redis为了方便内存的管理，在分配一块内存之后，会将这块内存的大小存入内存块的头部。如下图所示，real_ptr是redis调用malloc后返回的指针。redis将内存块的大小size存入头部，size所占据的内存大小是已知的，为size_t类型的长度，然后返回ret_ptr。当需要释放内存的时候，ret_ptr被传给内存管理程序。通过ret_ptr，程序可以很容易的算出real_ptr的值，然后将real_ptr传给free释放内存。<br><img src="http://img.blog.csdn.net/20150929104002757?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""><br>Redis通过定义一个数组来记录所有的内存分配情况，这个数组的长度为ZMALLOC_MAX_ALLOC_STAT。数组的每一个元素代表当前程序所分配的内存块的个数，且内存块的大小为该元素的下标。在源码中，这个数组为zmalloc_allocations。zmalloc_allocations[16]代表已经分配的长度为16bytes的内存块的个数。zmalloc.c中有一个静态变量used_memory用来记录当前分配的内存总大小。所以，总的来看，Redis采用的是包装的mallc/free，相较于Memcached的内存管理方法来说，要简单很多</li>
+<li>数据一致性问题<br>Memcached提供了CAS(check and set,即可以简单的通过版本号的方式处理，具体实现可以参照这篇文章<a href="http://blog.csdn.net/z69183787/article/details/52920185" target="_blank" rel="external">Memcache CAS协议介绍及使用</a>)命令，可以保证多个并发访问操作同一份数据的一致性问题。 Redis没有提供CAS命令，并不能保证这点，不过Redis提供了事务的功能，可以保证一串命令的原子性，中间不会被任何操作打断。</li>
+<li>分布式实现<br>Memcache的分布式是在memcache的客户端实现的，基本都是采用一致性哈希来处理。当客户端向Memcached集群发送数据之前，首先会通过内置的分布式算法计算出该条数据的目标节点，然后数据会直接发送到该节点上存储。但客户端查询数据时，同样要计算出查询数据所在的节点，然后直接向该节点发送查询请求以获取数据。<strong> 详细可以查看 <a href="http://blog.csdn.net/sparkliang/article/details/5279393" target="_blank" rel="external">一致性hash算法</a>。</strong><br>相较于Memcached只能采用客户端实现分布式存储，Redis更偏向于在服务器端构建分布式存储。Redis Cluster是一个实现了分布式且允许单点故障的Redis高级版本，它没有中心节点，具有线性可伸缩的功能。下图给出Redis Cluster的分布式存储架构，其中节点与节点之间通过二进制协议进行通信，节点与客户端之间通过ascii协议进行通信。在数据的放置策略上，Redis Cluster将整个key的数值域分成4096个哈希槽，每个节点上可以存储一个或多个哈希槽，也就是说当前Redis Cluster支持的最大节点数就是4096。Redis Cluster使用的分布式算法也很简单：crc16( key ) % HASH_SLOTS_NUMBER。<br><img src="http://img.blog.csdn.net/20150929104123109?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""><br>为了保证单点故障下的数据可用性，Redis Cluster引入了Master节点和Slave节点。如下图所示，在Redis Cluster中，每个Master节点都会有对应的两个用于冗余的Slave节点。这样在整个集群中，任意两个节点的宕机都不会导致数据的不可用。当Master节点退出后，集群会自动选择一个Slave节点成为新的Master节点。<br><img src="http://img.blog.csdn.net/20150929104155803?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></li>
+</ol>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://851235550.github.io/2017/10/23/面试题8/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="yulu">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="yulu">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="yulu" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/10/23/面试题8/" itemprop="url">
+                  面试总结
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-10-23T22:02:06+08:00">
+                2017-10-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h5 id="redis-与-memcache"><a href="#redis-与-memcache" class="headerlink" title="redis 与 memcache"></a>redis 与 memcache</h5><h6 id="两者区别"><a href="#两者区别" class="headerlink" title="两者区别"></a>两者区别</h6><ol>
+<li>数据持久化</li>
+<li>数据结构</li>
+<li>内存管理方式</li>
+<li>多线程还是单线程</li>
+<li>数据如何保持一致性 事务和CAS</li>
+<li>分布式的实现方式 一致性哈希</li>
+</ol>
+<h6 id="redis持久化的实现"><a href="#redis持久化的实现" class="headerlink" title="redis持久化的实现"></a>redis持久化的实现</h6><ol>
+<li>快照</li>
+<li>AOF<ul>
+<li>no</li>
+<li>everyfsync</li>
+<li>always</li>
+</ul>
+</li>
+</ol>
+<h5 id="mysql"><a href="#mysql" class="headerlink" title="mysql"></a>mysql</h5><ol>
+<li>sql 语句</li>
+<li>group by，order by ，limit顺序以及应用</li>
+<li>where与having区别</li>
+<li>jion on的三种方式 left ，rigit</li>
+<li>数据库引擎：<ul>
+<li>Innodb<br>  支持事务，行级锁，使用聚集索引</li>
+<li>MySIAM<br>  不支持事务，表级锁，使用非聚集索引</li>
+</ul>
+</li>
+<li>索引的实现原理：<br> B+Tree</li>
+<li>事务：<ul>
+<li>特性：原子性，一致性，隔离型，持久性</li>
+<li>级别：读未提交，读提交，可重复读，序列化</li>
+</ul>
+</li>
+<li>数据库的分区，分表：<ul>
+<li>分表：merge引擎</li>
+<li>分区：range，list，key，hash</li>
+</ul>
+</li>
+<li>如何优化数据库</li>
+<li>分布式，读写分离，主从同步</li>
+<li>doublewrite 机制</li>
+<li>存储时间的类型 datetime</li>
+</ol>
+<h5 id="nginx-与-apache-区别"><a href="#nginx-与-apache-区别" class="headerlink" title="nginx 与 apache 区别"></a>nginx 与 apache 区别</h5><ol>
+<li>优缺点</li>
+<li>nginx负载均衡的实现方式</li>
+<li>启动PHP的方式：mod ，端口号或者unix，socket文件</li>
+</ol>
+<h5 id="HTTP协议"><a href="#HTTP协议" class="headerlink" title="HTTP协议"></a>HTTP协议</h5><h6 id="http概念"><a href="#http概念" class="headerlink" title="http概念"></a>http概念</h6><h6 id="request"><a href="#request" class="headerlink" title="request"></a>request</h6><ol>
+<li>请求行：各种请求方法</li>
+<li>消息报头</li>
+<li>消息体</li>
+</ol>
+<h6 id="response"><a href="#response" class="headerlink" title="response"></a>response</h6><ol>
+<li>状态行：各种状态码都是什么含义</li>
+<li>消息报头</li>
+<li>消息体</li>
+</ol>
+<h6 id="长链接与短链接的优缺点"><a href="#长链接与短链接的优缺点" class="headerlink" title="长链接与短链接的优缺点"></a>长链接与短链接的优缺点</h6><h6 id="TCP协议"><a href="#TCP协议" class="headerlink" title="TCP协议"></a>TCP协议</h6><ol>
+<li>三次握手</li>
+<li>四次挥手</li>
+<li>TCP与UDP区别</li>
+</ol>
+<h5 id="进程与线程"><a href="#进程与线程" class="headerlink" title="进程与线程"></a>进程与线程</h5><ol>
+<li>概念</li>
+<li>进程间的通信方式：管道，消息队列</li>
+</ol>
+<h5 id="面向对象"><a href="#面向对象" class="headerlink" title="面向对象"></a>面向对象</h5><ol>
+<li>什么是面向对象<br> 封装，继承，多态；展开解释</li>
+<li>接口和抽象类的区别</li>
+</ol>
+<h5 id="设计模式"><a href="#设计模式" class="headerlink" title="设计模式"></a>设计模式</h5><ol>
+<li>举例设计模式<br> 工厂，单例，观察者，适配器，mvc</li>
+<li>实现单例模式：<br> 以下是一个简单的实现方式<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span></span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> $test = <span class="keyword">null</span>;</div><div class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span><span class="params">()</span></span>;</div><div class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getTest</span><span class="params">()</span></span>&#123;</div><div class="line">        <span class="keyword">if</span>(<span class="keyword">self</span>::$test == <span class="keyword">null</span>)&#123;</div><div class="line">            <span class="keyword">self</span>::$test = <span class="keyword">new</span> Test();</div><div class="line">            <span class="keyword">return</span> <span class="keyword">self</span>::$test;</div><div class="line">        &#125; </div><div class="line">    &#125;</div><div class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">__clone</span><span class="params">()</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<h5 id="PHP"><a href="#PHP" class="headerlink" title="PHP"></a>PHP</h5><h6 id="PHP常用函数："><a href="#PHP常用函数：" class="headerlink" title="PHP常用函数："></a>PHP常用函数：</h6><ol>
+<li><p>array函数及说明：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">array_shift(),array_unshift(),array_push(),array_pop(),array_merge(),array_map()</div><div class="line">array_keys(),array_key_exists(),array_diff(),in_array(),array_values(),array_sum()</div><div class="line">array_slice()</div></pre></td></tr></table></figure>
+</li>
+<li><p>string函数及说明：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">strlen(),substr(),mb_substr(),strstr(),strrchr(),strpos(),str_replace(),str_repeat()</div><div class="line">unfirst(),ucwords(),chr(),ord(),trim(),implode(),</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<h6 id="PHP-底层原理："><a href="#PHP-底层原理：" class="headerlink" title="PHP 底层原理："></a>PHP 底层原理：</h6><ol>
+<li>内核</li>
+<li>zend引擎</li>
+<li>扩展</li>
+<li>上层API</li>
+</ol>
+<h6 id="fast-cgi-与-cgi"><a href="#fast-cgi-与-cgi" class="headerlink" title="fast-cgi 与 cgi"></a>fast-cgi 与 cgi</h6><h6 id="魔术方法，全局变量"><a href="#魔术方法，全局变量" class="headerlink" title="魔术方法，全局变量"></a>魔术方法，全局变量</h6><ol>
+<li><p>魔术方法</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">__construct() , __destruct() , __set() , __get() , __sleep() , __clone()</div></pre></td></tr></table></figure>
+</li>
+<li><p>全局变量</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">_SERVER,_POST,_GET,_COOKIE</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<h6 id="描述用户在浏览器端输入地址到页面展示数据的过程"><a href="#描述用户在浏览器端输入地址到页面展示数据的过程" class="headerlink" title="描述用户在浏览器端输入地址到页面展示数据的过程"></a>描述用户在浏览器端输入地址到页面展示数据的过程</h6><h6 id="语法基础"><a href="#语法基础" class="headerlink" title="语法基础"></a>语法基础</h6><ol>
+<li>empty() 与 isset()</li>
+<li>display_error() 与 error_report()</li>
+<li>获取客户端的方法</li>
+<li>datetime与strtotime的应用</li>
+<li>PHP的copy on write，即变量引用的底层实现</li>
+<li>垃圾回收机制底层实现</li>
+<li>如何获取header中的信息</li>
+</ol>
+<h5 id="框架"><a href="#框架" class="headerlink" title="框架"></a>框架</h5><ol>
+<li>对框架的认识，理解</li>
+</ol>
+<h5 id="web-安全"><a href="#web-安全" class="headerlink" title="web 安全"></a>web 安全</h5><ol>
+<li>DDos</li>
+<li>sql注入：参数化查询</li>
+<li>xss跨站脚本攻击:</li>
+<li>CSRF跨站请求伪造：版本号</li>
+</ol>
+<h5 id="对于高并发的处理方式"><a href="#对于高并发的处理方式" class="headerlink" title="对于高并发的处理方式"></a>对于高并发的处理方式</h5><ol>
+<li>使用队列的方式</li>
+<li>使用版本号的方法</li>
+<li>提高服务的抗压能力：<ul>
+<li>首先考虑服务的硬件</li>
+<li>服务器</li>
+<li>代码模块化</li>
+<li>缓存</li>
+<li>数据库</li>
+</ul>
+</li>
+</ol>
+<h5 id="项目"><a href="#项目" class="headerlink" title="项目"></a>项目</h5><ol>
+<li>做过的项目一定要弄明白</li>
+</ol>
+<h5 id="常考算法"><a href="#常考算法" class="headerlink" title="常考算法"></a>常考算法</h5><ol>
+<li><p>二分查找</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">binaryFind</span><span class="params">($arr,$target)</span></span></div><div class="line">&#123;</div><div class="line">    $left = <span class="number">0</span>;</div><div class="line">    $right = count($arr);</div><div class="line">    <span class="keyword">while</span>($left &lt; $right)&#123;</div><div class="line">        $mid = $left + ($right - $left) &gt;&gt; <span class="number">1</span>;</div><div class="line">        <span class="keyword">if</span>($arr[$mid] == $target)&#123;</div><div class="line">            <span class="keyword">return</span> $mid; </div><div class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>($arr[$mid] &gt; $target)&#123;</div><div class="line">            $right = $mid - <span class="number">1</span>; </div><div class="line">        &#125;<span class="keyword">else</span>&#123;</div><div class="line">            $left = $mid + <span class="number">1</span>; </div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>快速排序：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">quickSort</span><span class="params">($arr,$start,$end)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">if</span>($start &lt; $end)&#123;</div><div class="line">        $p = $arr[$start];</div><div class="line">        $i = $start;</div><div class="line">        $j = $end;</div><div class="line">        <span class="keyword">while</span>($i &lt; $j)&#123;</div><div class="line">            <span class="keyword">while</span>($i &lt; $j &amp;&amp; $arr[$j] &gt; $p)&#123;</div><div class="line">                $j --; </div><div class="line">            &#125;</div><div class="line">            <span class="keyword">if</span>($i &lt; $j)&#123;</div><div class="line">                $arr[$i++] = $arr[$j]; </div><div class="line">            &#125;</div><div class="line">            <span class="keyword">while</span>($i &lt; $j &amp;&amp; $arr[$i] &lt; $p)&#123;</div><div class="line">                $i ++;</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">if</span>($i &lt; $j)&#123;</div><div class="line">                $arr[$j--] = $arr[$i]; </div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        $arr[$i] = $p;</div><div class="line">        quickSort($arr,$start,$i<span class="number">-1</span>);</div><div class="line">        quickSort($arr,$i+<span class="number">1</span>,$end);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> $arr;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>斐波那契类似递归</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//递归</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">test</span><span class="params">($n)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">if</span>($n == <span class="number">1</span>)&#123;</div><div class="line">        $return <span class="number">1</span>; </div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span>($n == <span class="number">2</span>)&#123;</div><div class="line">        $return <span class="number">1</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> test($n - <span class="number">1</span>) + test($n - <span class="number">2</span>);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//非递归</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">test</span><span class="params">($n)</span></span></div><div class="line">&#123;</div><div class="line">    $x1 = <span class="number">1</span>;</div><div class="line">    $x2 = <span class="number">1</span>;</div><div class="line">    <span class="keyword">for</span>($i = <span class="number">3</span>; $i &lt; $n; $i++)&#123;</div><div class="line">        $x3 = $x1 + $x2;</div><div class="line">        $x2 = $x3;</div><div class="line">        $x1 = $x2;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> $x3;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>已知有序数列中有一个重复的元素，去除</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">del</span><span class="params">($arr)</span></span></div><div class="line">&#123;</div><div class="line">    $index = <span class="number">1</span>;</div><div class="line">    $n = count($n);</div><div class="line">    <span class="keyword">for</span>($i = <span class="number">1</span>; $i &lt; $n; $i++)&#123;</div><div class="line">        <span class="keyword">if</span>($arr[$i] != $arr[$i - <span class="number">1</span>])&#123;</div><div class="line">            $arr[$index] = $arr[$i];</div><div class="line">            $index ++;</div><div class="line">        &#125; </div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> $arr;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>给定一个序列，求序列中最大连续字数组和</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">getMax</span><span class="params">($arr)</span></span></div><div class="line">&#123;</div><div class="line">    $n = count($arr);</div><div class="line">    $curr = <span class="number">0</span>;</div><div class="line">    $max = $arr[<span class="number">0</span>];</div><div class="line">    <span class="keyword">for</span>($i = <span class="number">0</span>; $i &lt; $n; $i++)&#123;</div><div class="line">        $curr = $curr + $arr[$i] &gt; $arr[$i] ? $curr + $arr[$i] : $arr[$i];</div><div class="line">        $max = $curr &gt; $max ? $curr : $max;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> $max;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>Top-K 问题<br>堆排序，小顶堆</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//调节堆</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">heapAdjust</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> root, <span class="keyword">int</span> n)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> tmp = a[root];</div><div class="line">    <span class="keyword">int</span> child = <span class="number">2</span> * root + <span class="number">1</span>;</div><div class="line">    <span class="keyword">while</span>(child &lt; n)&#123;</div><div class="line">        <span class="keyword">if</span>(child + <span class="number">1</span> &lt; n &amp;&amp; a[child + <span class="number">1</span>] &lt; a[child])</div><div class="line">            child ++ ;</div><div class="line">        <span class="keyword">if</span>(a[child] &lt; a[root])&#123;</div><div class="line">            a[root] = a[child];</div><div class="line">            root = child;</div><div class="line">            child = <span class="number">2</span> * root + <span class="number">1</span>;</div><div class="line">        &#125;<span class="keyword">else</span>&#123;</div><div class="line">            <span class="keyword">break</span>; </div><div class="line">        &#125;</div><div class="line">        a[child] = tmp;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//初始化堆</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">heapBuild</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> n)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = (n<span class="number">-1</span>) / <span class="number">2</span>; i &lt; n; i--)&#123;</div><div class="line">       heapAdjust(a,i,n); </div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//排序</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">heapSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> n)</span></span></div><div class="line">&#123;</div><div class="line">    heapBuild(a,n);</div><div class="line">    </div><div class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = n - <span class="number">1</span>; i &gt; <span class="number">0</span>; i--)&#123;</div><div class="line">        swap(arr[i],arr[<span class="number">0</span>]);</div><div class="line"></div><div class="line">        heapAdjust(a,i,n);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<h5 id="linux"><a href="#linux" class="headerlink" title="linux"></a>linux</h5><ol>
+<li>shell编程</li>
+<li><p>常用命令</p>
+<ul>
+<li>端口占用情况</li>
+<li>进程启动数量查看</li>
+<li>top</li>
+<li>find,grep,crontab</li>
+</ul>
+</li>
+<li><p>统计日志 awk</p>
+</li>
+</ol>
+<h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5><p>暂时想到这些，后续如果还能回忆起来会追加上。<br>另：以上感觉是后端从业者应知应会的基本问题；如果上面问题能够对答如流，那BAT应该可以进了。</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="http://851235550.github.io/2017/08/23/使用compose创建docker容器/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1277,460 +1885,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://851235550.github.io/2017/06/24/普通PHP面试遇到的问题3/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="yulu">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="/images/avatar.png">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="yulu">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="yulu" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/06/24/普通PHP面试遇到的问题3/" itemprop="url">
-                  普通PHP面试遇到的问题3
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-06-24T22:53:55+08:00">
-                2017-06-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>搜狗社招问题：</p>
-<ol>
-<li><p>问以下代码输出是什么，为什么？</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&lt;?php</span></div><div class="line">	setcookies(<span class="string">"name"</span>,<span class="string">"soso"</span>);</div><div class="line">	var_dump($_COOKIE[<span class="string">'name'</span>]);</div></pre></td></tr></table></figure>
-</li>
-<li><p>一个数组里面有2n+1个元素，其中n个元素重复出现2次，1个元素只出现了1次，找出这个元素的最快时间复杂度是多少。n=1….n   如果有3n+1个元素呢？</p>
-</li>
-<li>给定一个数组例如：array(‘apple’=&gt;1,’banana’=&gt;4,’pear’=&gt;1,’peach’=&gt;3) 对数组进行排序，如果值相等则按键的大小来排序。</li>
-<li>游戏A，B在10月1号-10月10号各要发放n个礼包；然后按不同的时间段发放礼包，每次发放的个数是固定的。比如A每天在7:00-9:00，没小时发放300个；Bi在周六12:00，每分钟发放50个。如何规定时间段内的礼包没有被领完，则将礼包累计到下一次发放。每个人对每款游戏只能领取一次礼包。设计数据库以及程序（伪代码）。</li>
-</ol>
-<p>面试：<br>问一些在工作中遇到的问题，以及如何解决。</p>
-<p>总结</p>
-<ol>
-<li>我当时给出的答案是sting(“soso”)，但貌似不对，应该是name undefined。因为只是设置了cookie的值，其实还没有生效吧。</li>
-<li><p>当有2n+1个元素的时候：</p>
-<ul>
-<li>我直接用了异或去处理。将数组异或一遍，最后得到的值就是要找的元素。时间复杂度是O(n);</li>
-<li>其实面试官真正想得到的答案是这样的：将1到n相加得到和tmp，将给出的数组元素相加得到和sum,然后将 tmp * 2 - sum 结果就是多出来的数。这样时间复杂度也是O(n)<br>当有3n+1个元素的时候：</li>
-<li>其方法和刚才算2n+1的时候是一致的，只不过是将tmp * 3 - sum 得到的结果再除以2即为只出现了一次的元素。</li>
-</ul>
-</li>
-<li><p>这个写一个快排就好了。</p>
-</li>
-<li>这个使用redis+mysql来完成,还有就是实现异步任务。</li>
-</ol>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://851235550.github.io/2017/06/24/普通PHP面试遇到的问题2/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="yulu">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="/images/avatar.png">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="yulu">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="yulu" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/06/24/普通PHP面试遇到的问题2/" itemprop="url">
-                  普通PHP面试遇到的问题2
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-06-24T22:34:23+08:00">
-                2017-06-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>2017年小米社招面试部分题：<br>部分笔试题：</p>
-<ol>
-<li>给定一个数组A和一个值sum，找出数组中所有和为sum的两个数。<ul>
-<li>博客中有一篇给出了此问题的答案，在此不赘述。</li>
-</ul>
-</li>
-<li><p>816消消乐：给定一串数字B，然后对其进行消除。例如：81818166 其做完消除处理之后结果为81；818816166其做完消除处理之后结果为空。</p>
-<ul>
-<li>这个问题还是比较难的…… 最直观的方案可能是这样的：对给定字符串B从前向后进行遍历，若符合消除规则816，则消除，然后记录一下当前位置减一，并检测一下前后位置是什么。如此循环。</li>
-<li>但这个问题实际的解法可能是这样的：<br>我们先从简单的问题入手，比如有字符串A：abaabbabc。我们的目的是消除A中形如ab（注：ab != ba）的部分<ul>
-<li>step1: 将ab放入数组arr中，arr = array(‘a’,’b’);</li>
-<li>step2: 设置index = 0，遍历字符串A。当A中的字符按照数组arr中字符的顺序匹配的时候，将index+1，如果没有匹配到合适相同的字符，则将index置为0，重新开始匹配。如果匹配到合适的字符，则将该字符串消除，然后将index置为消除之前时的值。</li>
-<li>step3: 重复step2。<br>如图：<br><img src="http://r.photo.store.qq.com/psb?/V10w67c33y2INP/Vo2IFvoEbU.09Xm4rCESkneotjdE*ecKjWzBYLai4aM!/o/dDwBAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=jgKTAI4CkwADCC0!&amp;tm=1498384800&amp;sce=0-12-12&amp;rf=viewer_311" alt=""><br>代码实现先欠着吧😓 </li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>给一张纪录学生成绩的mysql表，对其进行查询。比如：查出成绩总和最高的前5名。</p>
-</li>
-<li>给出了一段PHP程序。题目要求找出其中不合理的地方。</li>
-</ol>
-<p>部分面试题：</p>
-<ol>
-<li>redis在项目中的使用场景。</li>
-<li>PDO是什么东西。<br> 是一种php扩展，为php访问数据库定义了一致的接口，即提供一个抽象层，不管使用哪种数据库，都可以用相同的方法来查询和处理数据。</li>
-<li>写出尽可能多的常用的数组函数并解释。</li>
-<li>error_reporting()，display_errors()。<ul>
-<li>error_reporting(): 定义php错误展示级别。</li>
-<li>display_errors(): 设置是否将错误信息作为输出的一部分显示到屏幕。</li>
-</ul>
-</li>
-<li>安全方面。</li>
-<li>Docker</li>
-</ol>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://851235550.github.io/2017/06/24/普通PHP面试遇到的问题1/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="yulu">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="/images/avatar.png">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="yulu">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="yulu" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/06/24/普通PHP面试遇到的问题1/" itemprop="url">
-                  普通PHP面试遇到的问题1
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-06-24T21:53:29+08:00">
-                2017-06-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <ol>
-<li><p>写出常用的字符串，时间，数组函数。</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">string: substr() , mb_substr() , strstr() , chr() , ord() , implode() , explode() , join() , split() , ucfirst() , ucwords() , strtolower() , strtoupper() , str_replace() , str_split() , strlen()</div><div class="line">time: date() , time() , mktime() , strtotime()</div><div class="line"><span class="keyword">array</span>: array_shift() , array_unshift() , array_pop() , array_push() , array_merge(), in_array(), is_array(), array_chunk(),array_keys(), array_map(), array_diff(), array_key_exists(),array_splice(), array_search(),arrar_values(), array_replace()</div></pre></td></tr></table></figure>
-</li>
-<li><p>如何用php内置函数显示3个不同时区的时间。</p>
-<ul>
-<li>有一个时间类DateTimeZone可以用来处理这件事</li>
-</ul>
-</li>
-<li>知道哪些协议，并大体说一下。<ul>
-<li>http协议:http协议是浏览器与服务器之间的通信的规则。其具有简单，快速，无状态，无连接的特点。其由三部分组成：状态行，消息报头(header),消息体(body) 组成。</li>
-<li>请求行以一个方法符号开头，以空格分开，后面有请求的URI和协议的版本。请求方法常用的有：get(),post(),put(),delete()。</li>
-<li>在接受和处理请求后，服务器返回一个http响应消息，其包括：状态行，消息头，响应正文。</li>
-<li>状态码解释如下：<br>  1xx：指示信息–表示请求已接收，继续处理<br>  2xx：成功–表示请求已被成功接收、理解、接受<br>  3xx：重定向–要完成请求必须进行更进一步的操作<br>  4xx：客户端错误–请求有语法错误或请求无法实现<br>  5xx：服务器端错误–服务器未能实现合法的请求</li>
-</ul>
-</li>
-<li>对mongodb的基础操作：创建表，创建索引。<ul>
-<li>mongodb可以在插入数据的时候动态的创建出数据集。</li>
-<li>创建索引：db.collectionname.createIndex({filed:1/-1});    </li>
-</ul>
-</li>
-<li>对mysql的基础操作：创建一个user表,包含姓名，性别，uid，密码。此处需要注意的就是主键，字段的类型，长度的设置。</li>
-<li>对框架的理解，大体写一个简单的框架。</li>
-<li>socket编程。</li>
-<li>CGI与FastCGI。<br> CGI:CGI是一个协议，描述了服务器和请求处理程序之间传输数据的标准。CGI运行在独立的程序中即CGI程序，并为每个web请求创建一个进程,当完成任务进程就会被销毁。<br> CGI的优缺点:基于CGI的运行方式，不停的启动和销毁进程受限于操作系统的性能，难以扩展；<br> FastCGI:FastCGI是CGI的一个改进，FastCGI使用持续的进程来处理一连串的请求，这些进程是由FastCGI来管理，当请求到来时，web服务器会将环境变量和请求通过Socket或者TCP connection 传递给FastCGI进程。<br> FastCGI的优点在于预先已经启动多个进程等待web请求，更灵活的处理web请求。</li>
-<li>查看服务器日志中访问最多的前10个url<br> cat access.log | awk ‘{print $num}’ | sort | uniq -c | sort -rn | head -10</li>
-<li>nginx关于php的location配置，关于静态文件的配置。<figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">location ~ \.php$ &#123;</div><div class="line">    root           html;</div><div class="line">    fastcgi_pass   <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">9000</span>;</div><div class="line">    fastcgi_index  index.php;</div><div class="line">    fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;</div><div class="line">    <span class="keyword">include</span>        fastcgi_params;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>以上难点在于socket，框架，协议；其他我觉的还好。</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1773,7 +1932,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">30</span>
+                <span class="site-state-item-count">33</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1784,7 +1943,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-count">18</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
