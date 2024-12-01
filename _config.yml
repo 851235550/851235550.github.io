@@ -12,10 +12,11 @@ favicon: https://assets-cdn.github.com/favicon.ico
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-# url: http://sabrinaluo.com/tech
-# root: /tech/
+url: https://851235550.github.io/
+root: / 
 # permalink: :year/:month/:day/:title/
 # permalink_defaults:
+
 
 # Directory
 source_dir: source
@@ -92,3 +93,13 @@ social:
 # flagcounter
 flagcounter_href: # https://info.flagcounter.com/xxxx
 flagcounter_img_src: # https://s01.flagcounter.com/xxxx
+
+baidu_tongji:
+  site_from: '2019/7/26'
+  site_id: ''
+  access_token: 'xxxxx'
+
+#valine评论
+valine:
+  API_ID: ''
+  API_KEY: ''
