@@ -15,6 +15,13 @@ menu:
 
 rss_dir: atom.xml
 
+# public_dir: public
+tag_dir: tags
+archive_dir: archives
+category_dir: categories
+# code_dir: downloads/code
+# i18n_dir: :lang
+
 # widget
 ga: # google analytics tracking code UA-XXXXXXX-X
 baidutongji: # baidutongji tracking code
