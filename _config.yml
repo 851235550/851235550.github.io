@@ -12,7 +12,7 @@ favicon: https://assets-cdn.github.com/favicon.ico
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: https://851235550.github.io/
+# url: https://851235550.github.io/
 root: / 
 # permalink: :year/:month/:day/:title/
 # permalink_defaults:
@@ -89,6 +89,7 @@ avatar: https://avatars.githubusercontent.com/u/12993450?v=4
 social:
   github: https://github.com/851235550
   linkedin: https://www.linkedin.com/in/yulu-95b7b0312
+  weixin: https://mp.weixin.qq.com/s/CXHjvdUxSdhCErmRo2x7oA
 
 # flagcounter
 flagcounter_href: # https://info.flagcounter.com/xxxx

@@ -4,10 +4,12 @@ theme.social = theme.social || {};
 var github = config.social.github || theme.social.github;
 var weibo = config.social.weibo || theme.social.weibo;
 var linkedin = config.social.linkedin || theme.social.linkedin;
+var weixin = config.social.weixin;
 var location = config.location || theme.location;
 var email = config.email || theme.email;
-var url = config.url || theme.url;
+var url = theme.url;
 var avatar = config.avatar || theme.avatar || 'https://octodex.github.com/images/baracktocat.jpg'
+console.log(config)
 %>
 
 <div class="blog-intro">
@@ -51,21 +53,37 @@ var avatar = config.avatar || theme.avatar || 'https://octodex.github.com/images
       <a href="mailto:<%= email %>"><%= email %></a>
     </li>
     <% } %>
+    <% if(url){ %>
     <li>
       <i class="fa fa-link"></i>
       <a href="<%= url %>"><%= url %></a>
     </li>
+    <% } %> 
   </ul>
 
   <div class="social-media desktop-only">
     <h4>Social Media</h4>
     <ul>
       <% if(github){ %>
-      <li class="social-media-item"><a href="<%= github %>" target="_blank"><i class="fa fa-github"></i></a></li>
-      <% } if(weibo){ %>
-      <li class="social-media-item"><a href="<%= weibo %>" target="_blank"><i class="fa fa-weibo"></i></a></li>
-      <% } if(linkedin){ %>
-      <li class="social-media-item"><a href="<%= linkedin %>" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+      <li class="social-media-item">
+        <a href="<%= github %>" target="_blank">
+          <i class="fa fa-github" aria-hidden="true"></i>
+        </a>
+      </li>
+      <% } %>
+      <% if(linkedin){ %>
+      <li class="social-media-item">
+        <a href="<%= linkedin %>" target="_blank">
+          <i class="fa fa-linkedin"></i>
+        </a>
+      </li>
+      <% } %>
+      <% if(weixin){ %>
+      <li class="social-media-item">
+        <a href="<%= weixin %>" target="_blank">
+          <i class="fa fa-weixin" style="color: #3c3535cc;"></i>
+        </a>
+      </li>
       <% } %>
     </ul>
   </div>
