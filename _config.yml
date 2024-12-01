@@ -14,8 +14,8 @@ favicon: https://assets-cdn.github.com/favicon.ico
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
 # url: http://sabrinaluo.com/tech
 # root: /tech/
-permalink: :year/:month/:day/:title/
-permalink_defaults:
+# permalink: :year/:month/:day/:title/
+# permalink_defaults:
 
 # Directory
 source_dir: source
@@ -89,7 +89,7 @@ avatar: https://avatars.githubusercontent.com/u/12993450?v=4
 social:
   github: https://github.com/851235550
   公众号: 2040
-  linkedin: www.linkedin.com/in/yulu-95b7b0312
+  linkedin: http://www.linkedin.com/in/yulu-95b7b0312
 
 # flagcounter
 flagcounter_href: # https://info.flagcounter.com/xxxx
