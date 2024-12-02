@@ -10,7 +10,7 @@ var recentPosts = page.posts.data.slice(0, 6);
     <%- partial('_partial/navbar-secondary', {nav_selected: 0}) %>
 
     <div class="body-secondary">
-      <p class="right-title">Recent post</p>
+      <p class="right-title">Recent posts</p>
       <ul class="recent-post clearfix">
         <% recentPosts.forEach(function(post){ %>
         <li class="recent-post-item">
@@ -22,7 +22,7 @@ var recentPosts = page.posts.data.slice(0, 6);
             <p class="post-description text-ellipsis desktop-only">
               <%= post.content
                       .replace(/<[^>]*>/ig, ' ')
-                      .substr(0, 50) %>
+                      .substr(0, 150) %>
             </p>
             <p class="post-info desktop-only">
               <span>

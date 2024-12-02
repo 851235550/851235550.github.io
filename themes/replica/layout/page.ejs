@@ -5,12 +5,17 @@
     <%- partial('_partial/navbar-secondary', {nav_selected: page.title}) %>
 
     <div class="body-secondary">
-
       <% if(page.title === 'tags'){ %>
       <%- list_tags() %>
       <% } %>
       <% if(page.title === 'categories'){ %>
       <%- list_categories() %>
+      <% } %>
+      <% if(page.title === 'about'){ %>
+        <div class="body-secondary">
+          <p class="right-title">About me</p>
+          <%- page.content %>
+        </div>
       <% } %>
     </div>
   </div>
