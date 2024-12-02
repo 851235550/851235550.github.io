@@ -9,35 +9,35 @@ var location = config.location || theme.location;
 var email = config.email || theme.email;
 var url = theme.url;
 var avatar = config.avatar || theme.avatar || 'https://octodex.github.com/images/baracktocat.jpg'
-
 %>
 
 <div class="blog-intro">
   <div class="blog-intro-user">
     <img class="avatar" src="<%= avatar %>">
     <div class="user-name">
-      <div class="blog-title"><%= theme.title %></div>
-      <div class="blog-author"><%= theme.author %></div>
+      <div class="blog-title"><%= config.title %></div>
         <ul class="user-detail mobile-only">
-    <% if(location){ %>
-    <li>
-      <i class="fa fa-map-marker"></i>
-      <%= location %>
-    </li>
-    <% }if(email){ %>
-    <li>
-      <i class="fa fa-envelope-o"></i>
-      <a href="mailto:<%= email %>"><%= email %></a>
-    </li>
-    <% } %>
-    <li>
-      <i class="fa fa-link"></i>
-      <a href="<%= url %>"><%= url %></a>
-    </li>
-  </ul>
+          <% if(location){ %>
+          <li>
+            <i class="fa fa-map-marker"></i>
+            <%= location %>
+          </li>
+          <% }if(email){ %>
+          <li>
+            <i class="fa fa-envelope-o"></i>
+            <a href="mailto:<%= email %>"><%= email %></a>
+          </li>
+          <% } %>
+          <% if(url){ %>
+            <li>
+              <i class="fa fa-link"></i>
+              <a href="<%= url %>"><%= url %></a>
+            </li>
+            <% } %> 
+        </ul>
     </div>
     <div class="blog-description">
-      <%= theme.description %>
+      <%= config.description %>
     </div>
   </div>
 

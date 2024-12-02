@@ -27,3 +27,24 @@ var isOverview = ['tags', 'archives', 'categories', 'about'].indexOf(nav_selecte
     </li>
   </ul>
 </nav>
+
+<nav class="blog-detail-nav mobile-only">
+  <ul class="clearfix" style="display: flex; justify-content: center; align-items: center;">
+    <li class="<%= isOverview ? 'selected' : '' %>" style="height: 50px">
+      <a href="<%= config.root %>"  >Overview</a>
+    </li>
+    <li class="<%= nav_selected === 'archives' ? 'selected' : '' %>" style="height: 50px">
+      <a href="<%= url_for(theme.archive_dir) %>" style="display: flex; justify-content: center; align-items: center;" >Posts 
+        <span class="counter"><%= site.posts.length %></span> 
+      </a>
+    </li>
+    <li class="<%= nav_selected === 'categories' ? 'selected' : '' %>" style="height: 50px">
+      <a href="<%= url_for(theme.category_dir) %>" style="display: flex; justify-content: center; align-items: center;" >Categories 
+        <span class="counter"><%= site.categories.length %></span>
+      </a>
+    </li>
+    <li class="<%= nav_selected === 'about' ? 'selected' : '' %>" style="height: 50px">
+      <a href="<%= url_for(theme.about_dir) %>" >About</a>
+    </li>
+  </ul>
+</nav>

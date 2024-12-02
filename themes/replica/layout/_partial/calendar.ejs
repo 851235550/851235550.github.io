@@ -12,6 +12,8 @@
                     :x="day.x"
                     :y="day.y"
                     :fill="day.fill"
+                    rx="2"
+                    ry="2"
                     @click="selectedDate=day.date"
                     @mouseover="mouseoverDate=day.date"
                     :class="{active:selectedDate===day.date}"
