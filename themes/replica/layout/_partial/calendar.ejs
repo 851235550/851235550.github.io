@@ -5,7 +5,7 @@
     </h3>
     <div class="calendar-graph-container">
       <div class="calendar-graph">
-        <svg width="676" height="104" @mouseout="mouseoverDate=null">
+        <svg width="684" height="104" @mouseout="mouseoverDate=null">
           <g transform="translate(16, 20)">
             <g v-for="week in calendar" :transform="week.transform">
               <rect v-for="day in week.days"
@@ -46,7 +46,7 @@
           </g>
         </svg>
         <div class="svg-tip svg-tip-one-line"
-             v-bind:style="{ top: svgtip.top, left: svgtip.left, display: svgtip.display}">
+             v-bind:style="{ top: svgtip.top, left: svgtip.left, display: svgtip.display }">
           <strong>{{svgtip.text}}</strong> on
           {{moment(mouseoverDate).format('MMM DD, YYYY')}}
         </div>
@@ -166,6 +166,7 @@ postsArr.sort(function(a, b) {
     var date = new Date();
     date.setYear(date.getFullYear() - 1); // start date is a year ago;
     var calendar = [];
+
     while (date.toISOString().slice(0, 10) !== tmrStr) {
       var day = date.getDay();
       if (day === 0 || calendar.length === 0) {
@@ -186,7 +187,7 @@ postsArr.sort(function(a, b) {
       if (day === 0 && date.getDate() < 8) {
         monthLabels.push({
           x: 14 - calendar.length + x,
-          text: monthName[date.getMonth() - 1]
+          text: monthName[date.getMonth()]
         })
       }
 
