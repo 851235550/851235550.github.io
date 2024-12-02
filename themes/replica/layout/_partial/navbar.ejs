@@ -2,8 +2,8 @@
 var avatar = config.avatar || theme.avatar || 'https://octodex.github.com/images/baracktocat.jpg'
 %>
 <nav class="navbar-wrapper">
-  <div class="navbar">
-    <!-- <div class="container clearfix">
+  <!-- <div class="navbar">
+    <div class="container clearfix">
       <a href="<%= config.root %>" class="navbar-logo"><i class="fa fa-github"></i></a>
       <div class="navbar-search float-left desktop-only">
         <div class="navbar-search-form">
@@ -12,9 +12,9 @@ var avatar = config.avatar || theme.avatar || 'https://octodex.github.com/images
             <gcse:search></gcse:search>
           </div>
         </div>
-      </div> -->
+      </div>
 
-      <!-- <ul class="navbar-nav float-left">
+      <ul class="navbar-nav float-left">
         <% if(theme.menu.archives){ %>
         <li><a href="<%= url_for(theme.archive_dir) %>">Archives</a></li>
         <% } %>
@@ -27,9 +27,9 @@ var avatar = config.avatar || theme.avatar || 'https://octodex.github.com/images
         <% if(theme.rss_dir){ %>
         <li class="desktop-only"><a href="<%= url_for(theme.rss_dir) %>" target="_blank">RSS</a></li>
         <% } %>
-      </ul> -->
+      </ul>
 
-      <!-- <ul class="navbar-nav user-nav float-right desktop-only">
+      <ul class="navbar-nav user-nav float-right desktop-only">
         <li class="user-nav-notification">
           <a><span class="user-nav-unread"></span><i class="fa fa-bell"></i></a>
         </li>
@@ -39,7 +39,7 @@ var avatar = config.avatar || theme.avatar || 'https://octodex.github.com/images
         <li class="user-nav-logo">
           <a><img src="<%= avatar %>"> <i class="fa fa-caret-down"></i></i></a>
         </li>
-      </ul> -->
+      </ul>
     </div>
-  </div>
+  </div> -->
 </nav>

@@ -16,7 +16,7 @@ img {
 }
 
 main {
-
+  
 }
 
 header {
@@ -53,6 +53,7 @@ nav a:visited {
   margin-right: auto;
   width: 1000px;
 }
+
 
 .left {
   float: left;
