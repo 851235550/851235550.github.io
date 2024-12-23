@@ -1,6 +1,7 @@
 <%
 var publishTimestamp = page.date.valueOf();
 var article_edit = config.article_edit || {};
+var formatPublishTime = moment(publishTimestamp).format('YYYY MMM DD, HH:mm');
 %>
 <div class="post-container container">
   <h3>
@@ -14,7 +15,7 @@ var article_edit = config.article_edit || {};
       <% }else{ %>
           <i class="fa fa-pencil-square-o"></i>
       <%  } %>
-      {{moment(<%= publishTimestamp %>).fromNow()}}
+      <%= formatPublishTime %>
     </span>
   </h3>
 

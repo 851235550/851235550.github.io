@@ -17,6 +17,8 @@ var nav_selected = page.path.split('/')[0];
             if (index === 0) {
               category = cat
             }
+            post.dateFromNow = moment(post.date).startOf('day').fromNow();
+            console.log(post.dateFromNow)
           })
         %>
         <li class="archive-list-item">
@@ -36,11 +38,11 @@ var nav_selected = page.path.split('/')[0];
               <% if(category){ %>
               <a class="category-link" href="<%= url_for(category.path) %>"><i class="fa fa-folder-open"></i> <%= category.name %></a>
               <% } else { %>
-              <i class="fa fa-folder-open"></i> <%= 'Uncategorized' %>
+              <!-- <i class="fa fa-folder-open"></i> <%= '' %> -->
               <% } %>
             </span>
             <span><i class="fa fa-tag"></i> <%= post.tags.length %> </span>
-            <span>Published {{moment(<%= post.date.valueOf() %>).fromNow()}}</span>
+            <span>Published <%= post.dateFromNow %> </span>
           </div>
         </li>
         <% }) %>
