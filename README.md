@@ -72,18 +72,3 @@ categories:
 ```
 
 正文直接写 Markdown 即可。
-
-## 结论
-
-对你这个仓库来说，**更好的方式就是：**
-
-- 本地只写 Markdown
-- 不再全局安装 `hexo-cli`
-- 需要预览时才执行 `npm install`
-- 正式构建和发布全部交给 GitHub Actions
-
-如果你愿意，我还可以顺手帮你把当前的 GitHub Actions 再优化一下，比如：
-
-- 改成更稳定的 Node LTS 版本
-- 优化依赖缓存
-- 补一份更适合写作的 README
