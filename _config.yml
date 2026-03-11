@@ -73,7 +73,8 @@ pagination_dir: page
 theme: replica
 
 # Google Analytics
-ga: # GA code UA-XXXXXXXX-X
+# ga: # Google Analytics ID, e.g. G-RX1FQCZL22 or UA-XXXXXXXX-X
+ga: G-RX1FQCZL22
 
 #marked setting for markdown
 marked:

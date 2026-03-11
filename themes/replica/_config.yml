@@ -24,7 +24,7 @@ about_dir: about
 # i18n_dir: :lang
 
 # widget
-ga: # google analytics tracking code UA-XXXXXXX-X
+ga: # google analytics ID, e.g. G-RX1FQCZL22 or UA-XXXXXXX-X
 baidutongji: # baidutongji tracking code
 duoshuo: # duoshuo username
 gcs: # google custom search code
